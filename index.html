@@ -1,0 +1,1583 @@
+<title>Wildermuth Bruchzauber</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700&family=Kalam:wght@400;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: eine Spalte. Oben die gezeichnete Schulszene, darunter die Aufgabe. Helles Linoleum-Grün als Grund,
+   Tafelgrün für Karten und Zahlen, Orange als einzige Signalfarbe, Lila gehört dem Zauberer. Bewusst nur ein (helles) Thema. */
+:root{
+  color-scheme:light;
+  --bg:#e9f0ec; --card:#ffffff; --line:#c3d1cb; --edge:#16302b;
+  --fg:#16302b; --dim:#4d615b; --grid:#16302b55;
+  --accent:#b84a00; --gold:#dd9a00; --magic:#6a3fb5;
+  --ruby:#c8324a; --emerald:#1a8a5e; --sapphire:#2a6fe8; --steel:#7d8f89;
+  /* Bildteile: ungefärbt hell und neutral, gefärbt kräftig */
+  --pane:#f1f4f9; --g1:#d9264a; --g2:#2a6fe8; --g3:#12a064; --g4:#f08a00;
+  --display:"Bricolage Grotesque","Trebuchet MS","Segoe UI",sans-serif;
+  --hand:"Kalam","Comic Sans MS","Segoe Print",cursive;
+  --body:"Atkinson Hyperlegible","Verdana","Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}   /* nötig, wenn die Datei ohne Artifact-Rahmen geöffnet wird */
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font:1.125rem/1.5 var(--body);
+  background-image:radial-gradient(circle at 50% -10%,#ffffff 0,var(--bg) 60%);background-attachment:fixed}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:20px 40px}
+.screen{display:flex;flex-direction:column;gap:18px}
+h1,h2{font-family:var(--display);font-weight:700;line-height:1.05;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,7vw,3.2rem);color:var(--accent);user-select:none;-webkit-user-select:none}
+h2{font-size:1.9rem}
+h3{margin:0;font-size:1rem}
+p{margin:0;max-width:60ch}
+.dim{color:var(--dim)}
+.eyebrow{font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sapphire);outline-offset:3px}
+.btn{align-self:flex-start;background:var(--accent);color:var(--bg);border:0;border-radius:6px;padding:14px 24px;font-weight:700;min-height:56px}
+.btn.alt{background:none;color:var(--fg);border:2px solid var(--steel)}
+.hero{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.hero>div{flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.hero #rose{flex:0 0 auto}
+.rooms{display:flex;flex-direction:column;gap:10px;list-style:none;margin:0;padding:0}
+.room{width:100%;display:flex;gap:14px;align-items:center;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:6px;padding:14px 16px;min-height:72px}
+.room[disabled]{opacity:.55;cursor:default}
+.room .no{font-family:var(--display);font-size:2rem;color:var(--accent);width:1.4em;text-align:center}
+.room .t{flex:1;min-width:0}
+.room .t b{display:block}
+.room .t span{font-size:.95rem;color:var(--dim)}
+.stars{color:var(--gold);letter-spacing:.1em;white-space:nowrap}
+.stars i{font-style:normal;color:var(--line)}
+.story{background:var(--card);border-left:6px solid var(--accent);padding:20px;display:flex;flex-direction:column;gap:12px}
+.voice{font-family:var(--hand);font-weight:700;font-size:1.35rem;line-height:1.25;color:var(--magic);border-left:2px dotted var(--magic);padding-left:14px}
+.voice::before{content:"Der Maskierte Magier";display:block;font-family:var(--body);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+.voice:empty{display:none}
+.codebox{display:flex;flex-direction:column;gap:8px;border-top:2px solid var(--line);padding-top:16px}
+.codebox label{font-weight:700}
+.codebox input{flex:1 1 220px;min-width:0;min-height:56px;background:var(--card);border:2px solid var(--line);border-radius:6px;padding:0 14px;letter-spacing:.12em;text-transform:uppercase}
+.code{display:flex;flex-direction:column;gap:4px;background:var(--card);border:2px dashed var(--accent);border-radius:6px;padding:16px}
+.code strong,.mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;letter-spacing:.14em}
+.code strong{font-size:clamp(1.4rem,6vw,2.1rem);color:var(--accent);user-select:all;-webkit-user-select:all}
+#tbadge{position:fixed;z-index:60;right:8px;top:calc(env(safe-area-inset-top,0px) + 6px);background:var(--ruby);color:#fff;font-size:.8rem;font-weight:700;padding:4px 10px;border-radius:4px}
+/* Spiel (Kopfzeile: Orte, Leben, Aufgabenzähler, Schaltflächen) */
+.hud{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.locks{display:flex;gap:6px}
+.locks span{width:16px;height:16px;border-radius:50%;background:var(--line);border:2px solid var(--steel)}
+.locks span.open{background:var(--emerald);border-color:var(--emerald)}
+.locks span.now{background:var(--accent);border-color:var(--accent)}
+.hud .n{font-size:.95rem;color:var(--dim);font-variant-numeric:tabular-nums}
+.tipbtn{background:var(--card);border:2px solid var(--sapphire);border-radius:6px;padding:10px 16px;min-height:52px}
+#skip,#bskip,#btime{border-color:var(--ruby)}
+.scene{font-style:italic;color:var(--dim)}
+.q{font-size:1.2rem;font-weight:700}
+.row{display:flex;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap}
+.figbox{flex:1 1 220px;min-width:0;display:flex;justify-content:center}
+.fig{width:100%;height:auto;display:block}
+.cell{fill:var(--pane);stroke:var(--edge);stroke-width:4;stroke-linejoin:round}
+.cell.on{fill:var(--g)}
+.cell[data-slot]{cursor:pointer}
+.key{color:var(--steel)} .key.on{color:var(--gold)}
+.gridl{stroke:var(--grid);stroke-width:1.5;fill:none}
+.fr{display:inline-flex;flex-direction:column;align-items:center;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1;vertical-align:middle}
+.fr b{padding:0 .3em}
+.fr b+b{border-top:.12em solid currentColor}
+.tray{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;min-height:84px;padding:12px;border:2px dashed var(--line);border-radius:6px}
+.drag{touch-action:none;user-select:none;-webkit-user-select:none}
+.tile{background:var(--fg);color:var(--bg);border:0;border-radius:6px;min-width:76px;min-height:76px;padding:8px 14px;font-size:1.5rem;font-weight:700;box-shadow:0 4px 0 var(--steel)}
+.tile.word{font-size:1.15rem}
+.lift{opacity:.3}
+.sel{outline:4px solid var(--sapphire);outline-offset:3px}
+.ghost{position:fixed;z-index:50;pointer-events:none;margin:0;transform:scale(1.08) rotate(-3deg)}
+.lock{flex:0 0 auto;width:130px;height:150px;border-radius:14px;background:var(--card);border:4px solid var(--steel);display:flex;align-items:center;justify-content:center;text-align:center;color:var(--dim);font-size:.9rem;cursor:pointer}
+.lock.open{border-color:var(--accent);background:var(--line)}
+.lab{display:flex;flex-direction:column;gap:8px}
+.labrow{display:flex;gap:12px;align-items:center}
+.slot{min-height:84px;border:3px dashed var(--steel);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:2px}
+.slot.sm{width:92px} .slot.wd{width:150px}
+.slot.full{border-style:solid;border-color:var(--accent)}
+.bar{width:92px;height:5px;background:var(--fg);border-radius:3px}
+.side{display:flex;flex-direction:column;gap:14px;align-items:center}
+.goal{font-size:2.6rem;color:var(--accent)}
+.pile{background:none;border:0;border-radius:6px;min-width:84px;min-height:84px;padding:4px;display:flex;align-items:center;justify-content:center}
+.pile svg{pointer-events:none;display:block}
+/* Level 2: Tablet (Ablageziel mit Bild oder Bruch, Klasse .mirror), Gleichungszeile, antippbarer Kopierer (.mirrorbtn) */
+.mirror{flex:1 1 140px;max-width:220px;min-height:240px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 12px 12px;background:var(--card);border:8px solid var(--edge);border-radius:18px;cursor:pointer}
+.mirror.full{border-color:var(--accent)}
+.mirror>.fig{max-width:130px!important}
+.mirror>.fr{font-size:2.2rem;color:var(--accent);margin-block:14px}
+.mirror .card{width:110px}
+.op{font-size:1.8rem;font-weight:700;display:flex;flex-direction:column;align-items:center;line-height:1.1}
+.op small{font-size:1rem;color:var(--magic);white-space:nowrap}
+.given{width:92px;min-height:84px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;font-weight:700;color:var(--accent)}
+.mirrorbtn{width:100%;max-width:340px;background:var(--card);border:4px solid var(--steel);border-top-width:18px;border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px;align-items:center}
+.mirrorbtn:disabled{cursor:default;border-color:var(--accent);color:var(--dim)}
+.bin .tile{min-width:64px;min-height:64px;font-size:1.25rem}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bin{min-height:170px;background:var(--card);border:3px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;justify-content:center;cursor:pointer}
+.bin h3{width:100%;text-align:center}
+.card{background:none;border:0;padding:4px;width:120px;border-radius:6px}
+.bin .card{width:84px}
+.msg{border-radius:6px;padding:14px 16px;background:var(--card);border-left:6px solid var(--steel);min-height:56px}
+.msg:empty{display:none}
+.msg.bad{border-color:var(--ruby)} .msg.good{border-color:var(--emerald)} .msg.tip{border-color:var(--sapphire)}
+.msg b{display:block;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.stats{display:flex;gap:28px;flex-wrap:wrap}
+.stats div{display:flex;flex-direction:column}
+.stats strong{font-family:var(--display);font-size:2.4rem;color:var(--accent);line-height:1}
+.big{font-size:2.6rem}
+.acts{display:flex;gap:12px;flex-wrap:wrap}
+/* Zuordnen mit späterer Prüfung: belegtes Ziel, falsch liegendes Teil, gesperrte Prüfen-Schaltfläche */
+.slot.has{border-style:solid}
+.has>.ph{display:none}
+.mark{outline:4px solid var(--ruby);outline-offset:2px}
+.btn:disabled{opacity:.4;cursor:default}
+/* Zahleneingabe (enter, count) und Schlüsselbündel */
+.num{font:inherit;font-size:2.2rem;font-weight:700;font-variant-numeric:tabular-nums;text-align:center;width:92px;height:84px;background:var(--fg);color:var(--bg);border:3px solid var(--steel);border-radius:6px;padding:0}
+.num:focus{outline:4px solid var(--sapphire);outline-offset:3px}
+.num:disabled{border-color:var(--accent);opacity:1}
+.bundles{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.bundle{background:var(--card);border:2px solid var(--steel);border-radius:6px;padding:6px 4px 0}
+.bundle.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+@keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.shake{animation:shake .3s}
+/* Leben und Schutzschilde */
+.lives{display:inline-flex;gap:3px;align-items:center}
+.lives svg{width:24px;height:24px;display:block}
+.lives .h{fill:var(--ruby)} .lives .h.off{fill:var(--line)} .lives .s{fill:var(--sapphire)}
+/* Szene: gezeichneter Ort, Markierungen (.hs), Spielfigur */
+.scenebox{border:3px solid var(--edge);border-radius:10px;overflow:hidden;background:var(--card);cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.scenebox svg{display:block;width:100%;height:auto}
+#arena{cursor:default}
+.walkhint{font-weight:700}
+.hs ellipse{fill:none;stroke:var(--steel);stroke-width:3;stroke-dasharray:6 5}
+.hs path{stroke:var(--steel);stroke-width:3}
+.hs circle{fill:var(--card);stroke:var(--steel);stroke-width:3}
+.hs text{fill:var(--steel)}
+.hs.done circle{fill:var(--emerald);stroke:#fff} .hs.done text{fill:#fff}
+.hs.act circle{fill:var(--accent);stroke:#fff;transform-box:fill-box;transform-origin:center;animation:pulse 1.1s ease-in-out infinite}
+.hs.act text{fill:#fff} .hs.act ellipse,.hs.act path{stroke:var(--accent)}
+@keyframes pulse{50%{transform:scale(1.18)}}
+/* Endgegner: Zeitbalken, Antwortknöpfe */
+.tbar{height:12px;border-radius:6px;background:var(--line);overflow:hidden}
+.tbar i{display:block;height:100%;width:0;background:var(--ruby)}
+.bfig{display:flex;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap}
+.bfig .fig{width:180px;max-width:180px!important}
+.opts{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.opt{background:var(--fg);color:var(--bg);border:0;border-radius:8px;min-width:96px;min-height:76px;padding:8px 18px;font-size:1.6rem;font-weight:700;box-shadow:0 4px 0 var(--steel)}
+.opt.pic{background:var(--card);border:3px solid var(--steel);width:150px;padding:8px;box-shadow:none}
+.opt.pic .fig{max-width:100%!important}
+.opt.ok{outline:5px solid var(--emerald);outline-offset:2px} .opt.bad{outline:5px solid var(--ruby);outline-offset:2px}
+.opt:disabled{cursor:default}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}.hs.act circle{animation:none}}
+</style>
+
+<div id="tbadge" hidden>Lehrermodus</div>
+<div class="wrap">
+  <section class="screen" id="map">
+    <div class="hero">
+      <div>
+        <span class="eyebrow">Ein Bruch-Rätsel in fünf Leveln</span>
+        <h1 id="title">Der Bruchzauber am Wildermuth-Gymnasium</h1>
+        <p>Über Nacht hat ein maskierter Zauberer die Schule verhext: Alles ist in Teile zerlegt. Finde heraus, wer hinter der Maske steckt.</p>
+      </div>
+      <div id="rose"></div>
+    </div>
+    <ol class="rooms" id="rooms"></ol>
+    <form class="codebox" id="codeForm">
+      <label for="codeIn">Code eingeben</label>
+      <div class="acts">
+        <input id="codeIn" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX" maxlength="24">
+        <button class="btn">Spielstand laden</button>
+      </div>
+      <p class="dim" id="codeMsg"></p>
+    </form>
+  </section>
+
+  <section class="screen" id="story" hidden>
+    <span class="eyebrow" id="stEye"></span>
+    <h2 id="stTitle"></h2>
+    <div class="story" id="stText"></div>
+    <button class="btn" id="stBtn"></button>
+  </section>
+
+  <section class="screen" id="play" hidden>
+    <div class="hud">
+      <div class="locks" id="locks" aria-hidden="true"></div>
+      <div id="lives"></div>
+      <span class="n" id="count"></span>
+      <div class="acts">
+        <button class="tipbtn" id="skip" hidden>Überspringen</button>
+        <button class="tipbtn" id="tipBtn"></button>
+        <button class="tipbtn quit">Level abbrechen</button>
+      </div>
+    </div>
+    <div class="screen" id="sceneWrap">
+      <span class="eyebrow" id="placeName"></span>
+      <div class="scenebox" id="sceneBox"></div>
+      <p class="walkhint" id="walkHint"></p>
+    </div>
+    <div class="msg" id="msg" aria-live="polite"></div>
+    <p class="scene" id="scene"></p>
+    <p class="voice" id="voice"></p>
+    <p class="q" id="q"></p>
+    <div class="screen" id="stage"></div>
+  </section>
+
+  <section class="screen" id="boss" hidden>
+    <div class="hud">
+      <div id="blives"></div>
+      <span class="n" id="bcount"></span>
+      <div class="acts">
+        <button class="tipbtn" id="btime" hidden></button>
+        <button class="tipbtn" id="bskip" hidden>Überspringen</button>
+        <button class="tipbtn quit">Level abbrechen</button>
+      </div>
+    </div>
+    <div class="scenebox" id="arena"></div>
+    <div class="tbar" aria-hidden="true"><i id="tfill"></i></div>
+    <p class="q" id="bq"></p>
+    <div class="bfig" id="bfig"></div>
+    <div class="opts" id="bopts"></div>
+    <div class="msg" id="bmsg" aria-live="polite"></div>
+    <button class="btn" id="bnext" hidden>Weiter</button>
+  </section>
+
+  <section class="screen" id="quit" hidden>
+    <span class="eyebrow" id="quitEye"></span>
+    <h2>Bist du sicher, dass du abbrechen willst?</h2>
+    <p>Was du in diesem Level schon gelöst hast, geht verloren. Dein Spielstand bleibt so, wie er vor dem Level war.</p>
+    <div class="acts">
+      <button class="btn" id="quitNo">Nein, weiterspielen</button>
+      <button class="tipbtn" id="quitYes">Ja, Level abbrechen</button>
+    </div>
+  </section>
+
+  <section class="screen" id="end" hidden>
+    <span class="eyebrow" id="endEye"></span>
+    <h2 id="endTitle"></h2>
+    <div class="stars big" id="endStars"></div>
+    <div class="stats">
+      <div><strong id="endTips"></strong>Tipps genutzt</div>
+      <div><strong id="endErrs"></strong>Fehlversuche</div>
+    </div>
+    <div class="code">
+      <span class="eyebrow" id="endCodeLbl"></span>
+      <strong id="endCode"></strong>
+      <span class="dim">Schreib den Code ab. Auf dem Schulplan kannst du ihn wieder eingeben.</span>
+    </div>
+    <div class="story" id="endText"></div>
+    <div class="acts">
+      <button class="btn" id="toMap">Zum Schulplan</button>
+      <button class="btn alt" id="again">Level noch einmal spielen</button>
+    </div>
+  </section>
+</div>
+
+<script>
+/* #####################################################################################################
+   SCHALTER: WELCHE LEVEL SIND FREIGEGEBEN?  (hier stellt die Lehrkraft ein, was die Klasse spielen darf)
+   Ein Eintrag pro Level, in der Reihenfolge Level 1 bis Level 5:
+     true          = freigegeben
+     false         = gesperrt
+     '2026-11-09'  = ab diesem Tag freigegeben (Jahr-Monat-Tag in Anführungszeichen, gilt ab 0 Uhr)
+   Ein gesperrtes Level bleibt zu, auch im Lehrermodus und auch mit einem Spielstand-Code.
+   Die übrigen Regeln gelten weiter: Ein Level öffnet sich erst, wenn das Level davor geschafft ist.
+   Level, die noch nicht gebaut sind (zurzeit 3 bis 5), bleiben unabhängig von diesem Schalter gesperrt.
+   ##################################################################################################### */
+const FREIGABE=[true,true,false,false,false];
+
+/* =====================================================================================================
+   WILDERMUTH BRUCHZAUBER 0.3 – ÜBERGABE-NOTIZEN (für die Weiterarbeit in einem neuen Chat)
+   -----------------------------------------------------------------------------------------------------
+   WAS ES IST: Lernspiel Brüche, Klasse 6 Gymnasium BW, Einführung. Tablets (Touch), eine HTML-Datei,
+   kein Framework, alle Grafiken per Code als SVG. 5 Level à ca. 10 Minuten, durchgehende Rätsel-Story.
+   HERKUNFT: Neufassung von "Der Fluch von Burg Bruchstein" 0.4 (eigene Datei, das Original bleibt bestehen).
+   Die Mathematik von Level 1 und 2 ist unverändert übernommen: Aufgabentypen, Zahlenräume, Pools, Reihenfolge,
+   Fehlerhinweise. Neu sind Geschichte (Schule statt Burg), Bewegung durch gezeichnete Orte, Leben, Endgegner.
+   STAND 0.3:
+     Level 1 "Das Erdgeschoss" fertig (5 Orte + Endgegner Wischmopp 3000), gegenüber 0.2 unverändert.
+     Level 2 "Der erste Stock" fertig (5 Orte: Treppenhaus, Klassenzimmer, Kopierraum, Computerraum, Bibliothek
+       + Endgegner Kopiermeister K-2 im Flur vor der Bibliothek). Keine Burg-Texte mehr.
+     Level 3 ist VOLLSTÄNDIG ENTFERNT (Daten, Aufgabentypen share/quot/pairs/situ/sortq, Helfer, CSS). Der Lehrkraft
+       gefielen die Aufgaben nicht; das Level wird neu konzipiert. In LEVELS steht nur ein Platzhalter.
+       Wer die alte Fassung nachschlagen will: Datei "Wildermuth Bruchzauber 0.2" oder Burg Bruchstein 0.4.
+     Level 4-5 fehlen noch (nur Platzhalter in LEVELS, Plan siehe unten).
+     Neu: Level-Schalter FREIGABE ganz oben im Skript (siehe unten).
+   NÄCHSTER SCHRITT: Level 3 neu konzipieren und bauen. Die Arbeitsliste steht unten unter "LEVEL 3 NEU BAUEN".
+   Die Datei trägt die Versionsnummer im Namen; beim nächsten Stand auf 0.4 erhöhen (Dateiname und Zeile 2 hier).
+
+   LEVEL-SCHALTER (für die Lehrkraft, direkt hinter dem <script>-Tag)
+     const FREIGABE=[true,true,false,false,false];   ein Eintrag pro Level: true, false oder ein Datum 'JJJJ-MM-TT'
+     (ab diesem Tag offen). frei(i) wertet den Eintrag aus, freiAb(i) liefert den Text für den Schulplan.
+     Gesperrt heißt gesperrt: auch im Lehrermodus, auch mit Spielstand-Code, auch wenn das Level schon einmal
+     geschafft wurde. Der Schalter ändert weder Spielstand noch Code. Für ein neues Level den Eintrag auf true setzen.
+
+   AUFBAU DIESER DATEI (in dieser Reihenfolge)
+   1. CSS: Farb-Tokens in :root (bewusst nur helles Thema). --g1..--g4 = gefärbte Bildteile, --pane = ungefärbt,
+      --accent = Signalfarbe, --gold = goldene Schlüssel und Sterne, --magic = Farbe des Zauberers.
+   2. HTML: Bildschirme #map (Schulplan), #story, #play (Szene + Aufgabe), #boss, #quit, #end. Umschalten mit show(id).
+   3. SKRIPT: Level-Schalter FREIGABE, diese Notizen, dann DATEN: Hilfsfunktionen für kompakte Daten
+      (B, S, Q, F, P, C), LEVELS und BOSSES.
+   4. HELFER: fr() Bruch als HTML, fig() Kreis/Rechteck/Streifen/Menge, gridFig(), piece(), coat(),
+      Spielstand (store) und Spielstand-Code (encode/decode).
+   5. SZENEN: BG (ein Hintergrund pro Ort), KID (Spielfigur), WIZ (Zauberer), mopp() (Roboter), kopierer(),
+      door(), spot().
+   6. TYPES: ein Objekt pro Aufgabentyp. 7. SPIELLOGIK (Level, Bewegung, Leben). 8. ENDGEGNER.
+   9. Drag-and-drop. 10. Lehrermodus. 11. Start.
+
+   EIN LEVEL = { place, topic, startBtn, endTitle, boss?, intro[], outro[], groups[] }
+     groups[] = die Orte des Levels: { name, bg, story, voice, done, tasks[] }
+                name = Ortsname, bg = Schlüssel in BG, voice = Sprechzeile des Zauberers, done = Text nach der letzten Aufgabe
+     tasks[]  = Aufgabenplätze: { type, ...feste Felder, pool:[Varianten] }
+     Pro Durchlauf zieht startLevel() je Platz zufällig EINE Variante aus pool und mischt sie in den Platz.
+     Standard: 12 Plätze, 4 Varianten pro Platz (Level 1 hat 14 Plätze: jeder Aufgabentyp genau zweimal).
+     Intro/Outro-Absätze, die mit ~ beginnen, spricht der Zauberer.
+   Ein Level ohne groups gilt als "noch nicht gebaut" und bleibt auf dem Schulplan gesperrt.
+
+   BEWEGUNG (ersetzt die frühere "Weiter"-Schaltfläche)
+     Jeder Ort ist eine Szene (SVG 800 x 300, Boden bei y = 250). Pro Aufgabe des Ortes steht eine Markierung in der
+     Szene, rechts die Tür. Die Spielfigur läuft nur waagrecht: Antippen/Klicken einer Stelle (W.tx) oder Pfeiltasten
+     bzw. A/D (W.keys). limit() ist die nächste offene Markierung oder, wenn der Ort fertig ist, die Tür; weiter kommt
+     die Figur nicht. Erreicht sie limit(), ruft tick() arrive(): Aufgabe öffnen, nächsten Ort betreten oder
+     (nach dem letzten Ort) Endgegner bzw. finish().
+     G.mode: 'walk' (Szene sichtbar, Aufgabe gesperrt) | 'task' (Szene verborgen) | 'boss'. layout() schaltet um.
+     Neuer Ort: Hintergrundfunktion in BG ergänzen und in der Gruppe als bg eintragen. Jedes Level bekommt eigene Orte.
+     Maße für neue Hintergründe: rechts Platz für die Tür lassen (x = 702-770, zeichnet door()), die Markierungen
+     stehen zwischen x = 210 und 630 und reichen von y = 165 bis 271, die Figur startet bei x = 60.
+     Vergeben sind: eingang, flur, kunst, loge, halle (Level 1), treppe, klasse, kopier, computer, biblio,
+     ostflur (Level 2; ostflur ist die Arena des Endgegners).
+
+   LEBEN, TIPPS, SCHILDE
+     Start jedes Levels: LIVES = 5 Leben, TIPS = 5 Tipps (G.lives, G.tipsLeft), sichtbar in der Kopfzeile.
+     wrong() kostet ein Leben. Bei 0 Leben beginnt immer das ganze Level von vorn (neue Varianten, wieder 5/5),
+     egal ob die Leben bei einer Aufgabe (outOfLives) oder beim Endgegner (bossLost) ausgehen.
+     Tipps kosten kein Leben; pro Aufgabe zählt höchstens einer. Sind alle 5 verbraucht, gibt es keinen mehr.
+     Die Sternewertung ist unverändert und unabhängig von den Leben: G.errs und G.tips zählen über alle Neustarts
+     des Levels hinweg weiter. Fehler beim Endgegner zählen nicht für die Sterne.
+     Zum Endgegner bringt man die Leben mit, die im Level übrig sind (keine Auffüllung). Die übrigen Tipps
+     werden dort zu Schutzschilden, die vor den Leben verbraucht werden.
+
+   ENDGEGNER (Level 1: mopp, Level 2: kopier)
+     LEVELS[k].boss = Schlüssel in BOSSES. BOSSES[name] = { name, bg, need, secs{typ:Sekunden}, speed[],
+     ease, easeMax, intro[], lose[], fig, slow }. fig = Funktion, die die Figur zeichnet (bekommt die Lampenfarbe,
+     Füße/Räder im Ursprung, etwa 64 breit und 95 hoch), slow = Satz nach einer Niederlage ("fliegen langsamer").
+     Die Aufgaben kommen aus den Pools desselben Levels: Jeder Aufgabentyp, der eine Methode quick(t) hat, liefert
+     daraus eine Kurzfassung zum Antippen:
+       quick(t) -> { q, fig?, opts:[[html, hinweisBeiFalsch]], pic?, keep? } oder null (Variante zu lang) oder ein Array davon.
+       Genau eine Option hat einen leeren Hinweis: Das ist die richtige. pic = Optionen sind Bilder, keep = nicht mischen.
+     Ablauf: Die Typen werden reihum gemischt, der Zettel fliegt secs[typ] Sekunden (mal speed nach Anzahl gelöster
+     Aufgaben). Treffer oder falsche Antwort kostet ein Schild bzw. Leben, danach pausiert das Spiel mit Hinweis.
+     need gelöste Aufgaben = Sieg. Niederlage (0 Leben): Das ganze Level beginnt von vorn. Jeder verlorene
+     Endgegner-Versuch (G.tries, bleibt über den Neustart erhalten) gibt ease (15 %) mehr Zeit, höchstens easeMax-mal.
+     Die Zeiten in secs sind geschätzt (Ziel: Durchschnittskind schafft es im 2. oder 3. Versuch) und noch nicht mit
+     einer Klasse erprobt. Zum Anpassen genügt es, secs, speed oder ease zu ändern.
+     Die Wurfgeschosse heißen bei allen Endgegnern "Zettel" (feste Texte in bossHud, bossHit, bossMiss, bossLost).
+     Neuer Endgegner: quick() in den Typen des Levels ergänzen, Figur zeichnen, Eintrag in BOSSES, boss:'name' im Level.
+
+   EIN AUFGABENTYP = TYPES[name] = { q(t) Fragetext, tip(t) Tipp, render(t) HTML für #stage,
+     drop(t,el,slot,tap) wird gerufen, wenn Teil el (.drag, data-val) auf Ziel slot ([data-slot]) landet,
+     optional tap(t,slot) für Antippen eines Ziels ohne gewähltes Teil,
+     optional weitere Methoden, die über Schaltflächen mit data-act="name" gerufen werden (check, split),
+     optional quick(t) für den Endgegner (siehe oben) }
+     Im Typ aufrufen: solved(extraHtml) bei gelöst, wrong(hinweisHtml, element) bei Fehler (zählt 1 Fehlversuch, kostet 1 Leben),
+     place(el, slot) legt ein Teil fest ab. Jeder Fehler braucht einen Hinweis, der auf den Denkfehler eingeht.
+   Vorhandene Typen (alle mit quick):
+     pick   {shape,n,d,c,cols?,scatter?}   Bild -> passende Bruchkarte in den Kartenleser (L1)
+     enter  {shape,n,d,...}                Bild -> Zähler und Nenner selbst eintippen (L1)
+     count  {n,d,k?}                       Umkehrung der Schlüsselaufgabe: Anteil n/d gegeben, Anzahl goldener Schlüssel
+                                           eintippen; Bund hat d·k Schlüssel in d Bündeln (k fehlt = d Schlüssel) (L1)
+     label  {shape,n,d,...}                Zahlen und die Wörter Zähler/Nenner einsetzen (L1)
+     build  {shape,n,d,...}                Fensterbild einfärben, dann prüfen (L1)
+     sort   {cards:[Fliese],frac?}         Fliesen: Anteil frac gefärbt oder nicht; frac [1,4] (Standard), [1,2], [3,4] (L1)
+     match  {pairs:[[Tablet,Karte]],extra} gleichwertige Paare zuordnen; Angabe [n,d] = Bruch, F(...) = Bild (L2)
+     scale  {n,d,k,op,fig?,full?}          erweitern (op 'x') / kürzen (op ':') mit k; fig = Kopierer zerschneidet
+                                           das Bild erst; full = vollständig kürzen, k ist dann der ggT (L2)
+     gap    {n,d,k,op,miss}                fehlende Zahl in n/d = ?/.. ; miss 'top' oder 'bot' (L2)
+     sortfr {ref:[n,d],cards:[[n,d]]}      Brüche: genauso groß wie ref oder nicht (L2)
+   Die CSS-Klassen .mirror (Tablet als Ablageziel) und .mirrorbtn (Kopierer zum Antippen) heißen noch wie in der
+   Burg-Fassung; ready() sucht nach .mirror, also nicht umbenennen, ohne dort mitzuziehen.
+
+   ZUORDNEN MIT SPÄTERER PRÜFUNG (pick, label, match, scale, gap, sort, sortfr)
+     Teile werden ohne Sofortprüfung abgelegt und bleiben beweglich (auch zurück in den Vorrat, data-slot="tray").
+     "Prüfen" (data-act="check") ist erst aktiv, wenn alles zugeordnet ist. Falsche Teile bleiben liegen und werden
+     rot markiert, es gibt einen Hinweis und genau einen Fehlversuch pro Prüfung. Im Typ: drop -> put(el,slot),
+     check -> checkAll(judge, extraHtml). Neue Zuordnungsaufgaben sollten dasselbe Muster nutzen.
+
+   REGELN, DIE GELTEN SOLLEN
+   - Bedienung der Aufgaben: Ziehen ODER erst Teil antippen, dann Ziel antippen. Große Touch-Flächen.
+     Zeitdruck gibt es nur beim Endgegner.
+   - Tipp-Knopf: zählt pro Aufgabe höchstens einmal. Sterne: Fehlversuche+Tipps <=3 -> 3, <=8 -> 2, sonst 1.
+   - Level 1: nur echte Brüche, Nenner bis 15, Nenner nie das Doppelte des Zählers (sonst doppelte Karten).
+     enter: nur vollständig gekürzte Brüche. count: Zähler ab 2; in beiden Plätzen kommen Bünde vor, deren
+     Schlüsselzahl ein Vielfaches des Nenners ist (z. B. 2/5 von 10 Schlüsseln).
+     sort: Fliesen im 4x4-Raster, gesuchter Anteil 1/4, 1/2 oder 3/4; jede Variante braucht Gegenbeispiele vom
+     Typ "richtige Anzahl Teile, aber ungleich groß".
+   - Level 2 beginnt mit den reinen Rechenaufgaben (Erweitern/Kürzen mit gegebener Zahl), erst danach kommen
+     die Bilder. Am Gleichheitszeichen steht kein "· 3" oder ": 2" mehr.
+     Nenner bis 24, Erweiterungs-/Kürzungszahlen 2 bis 5 (beim vollständigen Kürzen ggT bis 8).
+     In jeder match-Variante haben die drei Paare verschiedene Werte (sonst wären beim Endgegner zwei Antworten richtig;
+     match.quick lässt gleichwertige Zweitantworten zur Sicherheit weg).
+   - Zahleneingabe: Felder mit class="num" und data-in="name"; nur Ziffern, Enter löst die Prüfen-Schaltfläche aus.
+   - "Level abbrechen" (im Spiel und beim Endgegner) fragt nach und führt zum Schulplan. Der Spielstand wird ohnehin
+     erst in finish() gespeichert, ein abgebrochenes Level hinterlässt also nichts.
+   - Freischaltung: Level i ist spielbar, wenn i <= Anzahl abgeschlossener Level UND es gebaut ist UND der
+     Schalter FREIGABE es erlaubt.
+   - Spielstand-Code: 12 Zeichen, enthält abgeschlossene Level, Lehrermodus-Flag, Fehlversuche (max 31) und
+     Tipps (max 15) für alle 5 Level. Pro Level zählt der beste Durchlauf. Nichts daran ändern, sonst
+     werden alte Codes ungültig. Das Format ist dasselbe wie in Burg Bruchstein (Codes gelten in beiden Spielen),
+     der Speicherplatz im Browser ist aber getrennt (localStorage-Schlüssel "wildermuth1").
+     Folge für Level 3: Ein alter Code kann "3 Level geschafft" enthalten (aus Burg Bruchstein oder 0.2). Er bleibt
+     gültig; der Schulplan zeigt dann für Level 3 die alten Werte, bis das neue Level 3 gespielt wird.
+   - Lehrermodus: Strg+Umschalt+L oder 5x schnell auf den Titel tippen -> "Überspringen" bei jeder Aufgabe und beim
+     Endgegner, beim Endgegner zusätzlich "Zeit: an/aus", und alle gebauten, freigegebenen Level sind auf dem
+     Schulplan offen (ohne den Spielstand zu ändern, solange kein Level beendet wird).
+   - Keine echten Lehrkräfte oder Schüler als Figuren.
+
+   LEVEL 3 NEU BAUEN (nächster Schritt; Vorbilder sind Level 1 und 2 in dieser Datei, die Engine bleibt, wie sie ist)
+   Unverändert bleiben: Level 1 und 2 vollständig, Bedienung, Bewegung, Leben/Tipps/Schilde, Lehrermodus,
+   "Level abbrechen", Spielstand-Code, Level-Schalter.
+   0. ZUERST MIT DER LEHRKRAFT KLÄREN (nichts bauen, bevor das steht): Bleibt das Thema "Brüche als Quotienten"
+      (3 : 4 = 3/4, gerecht teilen)? Welche Aufgabentypen sollen es sein, und was hat an den alten nicht gefallen
+      (alt: Ganze an Esser verteilen, Division <-> Bruch schreiben und zuordnen, Sachsituation -> Bruch, "kleiner
+      als 1?" sortieren)? Zahlenraum (alt: Ergebnisse kleiner als 1, 2 bis 5 Ganze, bis 8 Esser, Zähler nie 1),
+      typische Fehlvorstellungen, die die Hinweise aufgreifen sollen (alt: Zähler/Nenner vertauscht, Stückzahl statt
+      Anteil, "geht nicht auf"). Dann Orte und Endgegner vorschlagen und Zustimmung abwarten.
+   1. Aufgabentypen in TYPES neu schreiben (Muster: put/checkAll wie in Level 1 und 2, jeder Fehler mit Hinweis auf
+      den Denkfehler, dazu quick() für den Endgegner). Nötige Helfer und CSS ergänzen.
+   2. LEVELS[2] füllen: place 'Die Mensa' (Platzhalter steht schon; das Outro von Level 2 führt in die Mensa und
+      kündigt "gerecht teilen" an, bei anderem Thema dort den Magier-Satz anpassen), topic, startBtn, endTitle, boss,
+      intro[], outro[], 5 Gruppen mit name, bg, story, voice, done, tasks mit je 4 Varianten.
+      Idee aus dem alten Plan: hungrige Fünftklässler, Orte z. B. Essensausgabe, Tische, Küche, Kiosk, Speisekammer.
+      Das Outro soll zur Sporthalle führen (Level 4: Zahlengerade).
+   3. Fünf eigene Orte in BG zeichnen (Maße siehe BEWEGUNG), keine Orte aus Level 1 und 2. Der Zauberer (WIZ)
+      darf klein im Hintergrund auftauchen.
+   4. Endgegner: Figur zeichnen, Eintrag in BOSSES (mit fig und slow), eigene Arena in BG.
+   5. 1-2 neue versteckte Hinweise legen und im STORY-RAHMEN über LEVELS eintragen. Offene Spur aus Level 2:
+      der angebissene Keks mit winzigen Bissspuren auf der Treppe zur Mensa.
+   6. FREIGABE[2] auf true setzen (oder der Lehrkraft überlassen und im Abschlussbericht nennen).
+   7. Im Browser testen: Desktopbreite mit Maus und Tastatur, Tablet quer und hoch mit Antippen; Level 3 ganz
+      durchspielen, dazu 0 Leben, Abbrechen, Lehrermodus, Code laden. Level 1 und 2 müssen danach unverändert laufen.
+   8. Diese Notizen aktualisieren (STAND, Typenliste, Hinweise), Versionsnummer im Dateinamen und oben erhöhen.
+
+   PLAN FÜR DIE WEITEREN LEVEL
+   Level 4 "Die Sporthalle", Zahlengerade (neu zu bauen). Lernziele: Brüche zwischen 0 und 1 ablesen und eintragen,
+     passende Unterteilung wählen, gleichwertige Brüche liegen an derselben Stelle. Typen: Hütchen an die richtige
+     Stelle der Laufbahn ziehen, markierte Stelle benennen, Bahn erst unterteilen und dann eintragen.
+     Fehlvorstellungen: Striche statt Abstände gezählt, Zähler oder Nenner als Position gelesen. Zahlenraum: 0 bis 1,
+     Nenner bis 12.
+   Level 5 "Der Schulgarten", Vergleichen, danach FINALE (neu zu bauen). Lernziele: vergleichen bei gleichem Nenner,
+     gleichem Zähler, über 1/2, durch Erweitern; drei Brüche ordnen. Typen: Waage mit <, >, =; ordnen; größten oder
+     kleinsten wählen. Fehlvorstellungen: "größerer Nenner, größerer Bruch", Zähler und Nenner getrennt verglichen,
+     Differenz verglichen. Zahlenraum: Nenner bis 12, gemeinsame Nenner bis 24.
+     Finale: Enthüllung des Zauberers (siehe STORY-RAHMEN über LEVELS), Abschluss mit Werten aller 5 Level + Code.
+   Endgegner für Level 3-5: je ein Eintrag in BOSSES plus quick() in den Typen des Levels.
+   ===================================================================================================== */
+
+/* ============ DATEN: Level und Aufgaben (getrennt von der Spiellogik) ============ */
+/* Jeder Aufgabenplatz hat einen Pool. Pro Durchlauf wird eine Variante gezogen.
+   Regel für Brüche: echt, Nenner bis 15, Nenner nie das Doppelte des Zählers. */
+const B=(...a)=>a.map(([n,d])=>({n,d}));                 // Pool aus Brüchen
+const S=(n,d,k,op='x')=>({n,d,k,op});                     // scale: n/d mit k erweitern ('x') oder kürzen (':')
+const Q=(n,d,k,miss,op='x')=>({n,d,k,miss,op});           // gap: n/d = (n·k)/(d·k), miss = fehlende Stelle
+const F=(shape,n,d,c=0,cols)=>({shape,n,d,c,cols});       // Bild für match (wie fig-Angaben)
+const P=(x,y,w,h,on)=>({x,y,w,h,on});                    // Teil einer Fliese im 4x4-Raster
+const C=(on,...r)=>r.map((p,i)=>P(...p,[].concat(on).includes(i)));  // Fliese: gefärbte Teile + Aufteilung
+const QUAD=[[0,0,2,2],[2,0,2,2],[0,2,2,2],[2,2,2,2]], COLS=[[0,0,1,4],[1,0,1,4],[2,0,1,4],[3,0,1,4]],
+      ROWS=[[0,0,4,1],[0,1,4,1],[0,2,4,1],[0,3,4,1]],
+      MIX=[[0,0,2,4],[2,0,2,2],[2,2,1,2],[3,2,1,2]],     // Hälfte, Viertel, zwei Achtel
+      HQQ=[[0,0,4,2],[0,2,2,2],[2,2,2,2]], R112=[[0,0,4,1],[0,1,4,1],[0,2,4,2]], C211=[[0,0,2,4],[2,0,1,4],[3,0,1,4]],
+      U=[[0,0,3,2],[3,0,1,2],[0,2,3,2],[3,2,1,2]], BIG=[[0,0,3,3],[3,0,1,3],[0,3,3,1],[3,3,1,1]];
+/* STORY-RAHMEN. Der "Maskierte Magier" hat über Nacht das Wildermuth-Gymnasium verhext: Alles ist in Teile zerlegt,
+   und der Putzroboter Wischmopp 3000 steht unter seinem Zauber (Endgegner Level 1, danach wieder harmlos).
+   Im ersten Stock verhext er den Kopierer: Kopiermeister K-2 (Endgegner Level 2, danach ebenfalls wieder harmlos).
+   Der Magier tritt als Bösewicht auf: Maske, spitzer Hut, viel zu langer Umhang. Er meldet sich über Bildschirme
+   und Zettel und taucht klein im Hintergrund der Szenen auf (WIZ).
+   AUFLÖSUNG (erst am Ende von Level 5, vorher nie verraten): Unter der Maske steckt ein Igel in Kapuzenpulli und
+   Chucks (schwarze Stoffturnschuhe mit weißer Kappe). Er wohnt in der Hecke am Haupteingang.
+   MOTIV: Der Igel ist ein frustrierter Mathelehrer. Er hat die Schule mit Absicht verhext, um die Kinder zum
+   Bruchrechnen zu zwingen: Niemand kommt weiter, ohne zu rechnen. Maske und Umhang trägt er, damit ihn keiner
+   erkennt (und damit keiner merkt, wie klein er ist). Er ist eine erfundene Figur, kein Abbild einer echten Lehrkraft.
+   Ton des Magiers: kurz, großspurig, scheint alles zu sehen, manchmal rutscht ihm der Lehrerton heraus
+   (benoten, "Das üben wir noch einmal"); spannend, aber nicht gruselig, keine Drohungen.
+   Pro Level 1-2 versteckte Hinweise auf den Igel.
+   Texte: Absätze, die mit ~ beginnen, und das Feld voice sind Sprechzeilen des Magiers.
+   Bisher gelegte Hinweise (Level 1): Hecke am Eingang, viel zu langer Umhang, Turnschuhspitzen unter dem Umhang
+   (Zeichnung), "schnüff", Rascheln wie in trockenem Laub, "Nachts bin ich immer wach", "kaum höher als ein
+   Schulranzen", "Vier Teile sind nicht immer Viertel … Ich weiß es am besten", winzige Abdrücke von Turnschuhen.
+   Lehrer-Hinweise (Level 1): "Ab heute wird an dieser Schule gerechnet", "Das üben wir noch einmal. Von vorn!",
+   "Dafür gibt es höchstens eine Drei plus".
+   Bisher gelegte Hinweise (Level 2): Tritthocker vor dem Whiteboard, und trotzdem ist nur die untere Hälfte
+   beschrieben (Text und Zeichnung im Klassenzimmer); Fehlkopie, auf der am Rand etwas "wie eine Bürste" mitkopiert
+   ist (Text, dazu ein Blatt mit stachligem Rand am Boden des Kopierraums); winzige Bissspuren im Keks (Outro).
+   Lehrer-Hinweise (Level 2): "Das schreibt ihr euch bitte auf", Ausdruck mit Rotstift-Korrektur, "Darauf fällt
+   jedes Jahr jemand herein", "Setzen. Das wiederholen wir."
+   Offene Spur für Level 3: der angebissene Keks auf der Treppe zur Mensa.
+   Die Lehrlings-Hinweise der Burg-Fassung (Schatten, beschlagener Spiegel, Verhaspeln) sind entfallen. */
+const LEVELS=[
+ {place:'Das Erdgeschoss',topic:'Brüche als Anteile',startBtn:'Zum Haupteingang',endTitle:'Wischmopp 3000 ist entzaubert',boss:'mopp',
+  intro:['Montagmorgen, kurz nach sieben. Du bist heute früher am Wildermuth-Gymnasium als alle anderen, und etwas stimmt nicht: Die Fenster, die Schilder, sogar der Schlüsselbund des Hausmeisters sind in Teile zerlegt.',
+         'Neben der Eingangstür hängt der Bildschirm für den Vertretungsplan. Statt des Plans erscheint dort eine Gestalt mit Maske, spitzem Hut und einem viel zu langen Umhang.',
+         '~Ich bin der Maskierte Magier. Ab heute wird an dieser Schule gerechnet, und zwar mit Brüchen! Du willst hinein? Dann nenne meine Teile beim Namen.',
+         'Hinter der Glastür saust der Putzroboter Wischmopp 3000 vorbei. Seine Lampen leuchten lila, und er wirft mit Zetteln um sich.'],
+  outro:['Wischmopp 3000 blinzelt. Seine Lampen leuchten wieder grün, und er wischt verlegen eine Pfütze auf. Auf seinem Display steht: „Entschuldigung. Das war nicht ich.“',
+         '~Ein Roboter weniger. Na und? Dafür gibt es höchstens eine Drei plus. Im ersten Stock hat alles einen Doppelgänger. Anderer Name, gleicher Wert. Such mich dort. Wenn du dich traust.',
+         'Auf der Treppe nach oben siehst du im Staub winzige Abdrücke von Turnschuhen. Sie sind kaum größer als dein Daumen.'],
+  groups:[
+   {name:'Der Haupteingang',bg:'eingang',
+    story:'Die Fenster über dem Eingang sind in bunte Teile zerlegt. Die Tür hat einen Kartenleser, und der will Bruchkarten sehen.',
+    voice:'Vier Fenster. Erst Karten, dann deine eigenen Zahlen. Ich zähle mit.',
+    done:'Der Kartenleser piept. Die Eingangstür gleitet auf.',
+    tasks:[{type:'pick',shape:'circle',c:0,pool:B([3,4],[1,3],[2,3],[1,4])},
+           {type:'pick',shape:'strip',c:1,pool:B([5,6],[3,5],[4,7],[2,7])},
+           {type:'enter',shape:'rect',cols:4,c:2,scatter:1,pool:B([3,8],[5,8],[7,12],[5,12])},
+           {type:'enter',shape:'circle',c:3,pool:B([2,5],[3,7],[4,9],[5,6])}]},
+   {name:'Der Flur mit den Schließfächern',bg:'flur',
+    story:'An den Schließfächern kleben neue Schilder. Jemand hat sie in Felder geteilt und einige davon angemalt.',
+    voice:'Oben und unten. Jede Zahl hat einen Namen. Kennst du ihn?',
+    done:'Die Flurtür entriegelt sich. Hinter den Schließfächern raschelt es, als liefe jemand durch trockenes Laub.',
+    tasks:[{type:'label',shape:'circle',c:0,pool:B([2,5],[3,5],[1,6],[3,7])},
+           {type:'label',shape:'rect',cols:5,c:3,scatter:1,pool:B([7,10],[3,10],[4,15],[11,15])}]},
+   {name:'Der Kunstraum',bg:'kunst',
+    story:'Im Kunstraum hängen Fensterbilder aus bunter Folie. Aus manchen sind Stücke herausgefallen. Auf dem Rahmen steht, welcher Anteil farbig sein muss.',
+    voice:'Zerlegt ist schnell. Reparieren dauert … schnüff … ewig.',
+    done:'Buntes Licht fällt in den Raum. Die Tür zum Hausmeister steht offen.',
+    tasks:[{type:'build',shape:'circle',c:1,pool:B([5,8],[3,8],[5,6],[7,10])},
+           {type:'build',shape:'rect',cols:5,c:0,pool:B([7,15],[4,15],[11,15],[8,15])}]},
+   {name:'Die Hausmeisterloge',bg:'loge',
+    story:'Der Hausmeister ist noch nicht da. Sein Schlüsselbund hängt am Brett, und einige Schlüssel sind zu Gold geworden.',
+    voice:'Der Hausmeister kommt erst um halb acht. Ich bin schon lange wach. Nachts bin ich immer wach.',
+    done:'Der Schlüsselkasten klickt. Unter dem Schreibtisch huscht etwas davon, kaum höher als ein Schulranzen.',
+    tasks:[{type:'pick',shape:'set',scatter:1,pool:B([4,9],[5,9],[3,10],[7,10])},
+           {type:'pick',shape:'set',scatter:1,pool:B([9,14],[5,14],[8,13],[4,11])},
+           {type:'count',pool:[{n:3,d:7},{n:5,d:8},{n:2,d:5,k:2},{n:3,d:4,k:2}]},
+           {type:'count',pool:[{n:2,d:3,k:4},{n:3,d:7,k:2},{n:2,d:5,k:3},{n:3,d:5,k:2}]}]},
+   {name:'Die Pausenhalle',bg:'halle',
+    story:'In der Pausenhalle sind die Bodenfliesen neu bemalt. Manche sind in ungleich große Teile zerlegt. Lass dich nicht täuschen.',
+    voice:'Vier Teile sind nicht immer Viertel. Und zwei von vier nicht immer die Hälfte. Glaub mir. Ich weiß es am besten.',
+    done:'Die letzte Fliese rastet ein. Aus dem Putzraum kommt ein lautes Surren.',
+    tasks:[{type:'sort',pool:[
+             {cards:[C(0,...QUAD),C(2,...MIX),C([2,3],...MIX),C(2,...COLS)]},
+             {cards:[C(3,...QUAD),C(3,...MIX),C(1,...MIX),C(1,...U)]},
+             {frac:[1,2],cards:[C([0,1],...QUAD),C([0,1],...U),C([1,3],...U),C([1,2],...BIG)]},
+             {frac:[3,4],cards:[C([0,1,2],...ROWS),C([0,1],...MIX),C([1,2,3],...MIX),C([0,1,3],...U)]}]},
+           {type:'sort',pool:[
+             {cards:[C(0,...HQQ),C(1,...HQQ),C(0,...R112),C(1,...U)]},
+             {cards:[C(2,...HQQ),C(0,...C211),C(1,...C211),C(3,...U)]},
+             {frac:[1,2],cards:[C(0,...HQQ),C([1,2],...C211),C([0,3],...BIG),C([0,2],...U)]},
+             {frac:[3,4],cards:[C([0,1],...HQQ),C([0,2],...U),C([0,1],...R112),C([0,1,2],...BIG)]}]}]}
+  ]},
+ /* Level 2 "Der erste Stock". Der Magier meldet sich über Infobildschirm, Tablets, Kopien und Monitore.
+    Versteckte Hinweise: Tritthocker vor dem Whiteboard (Text und Zeichnung), Fehlkopie mit "Bürste" am Rand,
+    Rotstift-Korrektur, Lehrerton ("Das schreibt ihr euch bitte auf", "Setzen"). */
+ {place:'Der erste Stock',topic:'Kürzen und Erweitern',startBtn:'Zum Treppenhaus',endTitle:'Kopiermeister K-2 ist entzaubert',boss:'kopier',
+  intro:['Die Treppe führt in den ersten Stock. Hier oben ist es still, nur irgendwo summt ein Gerät. Auf jedem Bildschirm, an dem du vorbeikommst, flackern Brüche.',
+         '~Du hast es also die Treppe herauf geschafft. Hier oben hat alles einen Doppelgänger: zwei Viertel, drei Sechstel, fünf Zehntel. Anderer Name, gleicher Wert. Erkennst du sie?',
+         'Fünf Räume liegen zwischen dir und dem Ende des Flurs. Aus dem Kopierraum quillt schon jetzt Papier unter der Tür hervor.'],
+  outro:['Der Kopiermeister K-2 schnauft, spuckt ein letztes leeres Blatt aus und leuchtet wieder grün. Auf seinem Display steht: „Papierstau behoben.“',
+         '~Schon wieder einer weniger. Bilde dir nichts darauf ein. Unten in der Mensa wird geteilt. Gerecht geteilt. Merk dir das Wort.',
+         'Auf der Treppe nach unten liegt ein angebissener Keks. Die Bissspuren sind winzig. Es riecht nach Mittagessen.'],
+  groups:[
+   /* Ort 1: Erweitern und Kürzen mit gegebener Zahl, ohne Bild (einfacher Einstieg) */
+   {name:'Das Treppenhaus',bg:'treppe',
+    story:'Am Treppenabsatz hängt der Infobildschirm. Statt der Raumpläne stehen dort nur Zahlen, und sie wollen verwandelt werden.',
+    voice:'Oben mal, unten mal. Oder oben durch und unten durch. Immer beide! Das schreibt ihr euch bitte auf.',
+    done:'Der Infobildschirm zeigt wieder den Raumplan. Die Glastür zum Flur springt auf.',
+    tasks:[{type:'scale',pool:[S(3,4,3),S(2,5,4),S(5,6,2),S(3,7,3)]},
+           {type:'scale',pool:[S(6,8,2,':'),S(9,12,3,':'),S(10,15,5,':'),S(8,12,4,':')]}]},
+   /* Ort 2: gleichwertige Darstellungen erkennen (Bild-Bild, Bild-Bruch, Bruch-Bild) */
+   {name:'Das Klassenzimmer',bg:'klasse',
+    story:'Am Whiteboard hängen drei Tablets, davor liegen lose Magnetkarten. Vor dem Whiteboard steht ein Tritthocker, und trotzdem ist nur die untere Hälfte beschrieben.',
+    voice:'Verschiedene Teile, gleiche Menge. Finde, was zusammengehört.',
+    done:'Die Tablets schalten sich ab. Die Tür zum Kopierraum klickt.',
+    tasks:[{type:'match',pool:[
+             {pairs:[[F('circle',1,2,0),F('rect',2,4,1,2)],[F('circle',1,3,2),F('strip',2,6,3)],[F('circle',3,4,1),F('rect',6,8,0,4)]]},
+             {pairs:[[F('strip',1,2,0),F('circle',3,6,1)],[F('circle',2,3,2),F('rect',4,6,3,3)],[F('circle',1,4,1),F('rect',2,8,0,4)]]},
+             {pairs:[[F('circle',1,2,2),F('rect',4,8,0,4)],[F('strip',1,3,1),F('circle',2,6,3)],[F('strip',3,4,0),F('circle',6,8,2)]]},
+             {pairs:[[F('strip',1,2,3),F('circle',2,4,0)],[F('circle',1,3,1),F('rect',3,9,2,3)],[F('circle',3,4,0),F('rect',9,12,1,4)]]}]},
+           {type:'match',pool:[
+             {pairs:[[F('circle',1,2,0),[4,8]],[F('strip',2,3,1),[4,6]],[F('circle',3,4,2),[6,8]]],extra:[[4,5]]},
+             {pairs:[[F('circle',1,3,1),[2,6]],[F('strip',1,2,2),[5,10]],[F('circle',2,3,0),[6,9]]],extra:[[3,4]]},
+             {pairs:[[F('strip',3,4,2),[9,12]],[F('circle',1,2,3),[3,6]],[F('circle',1,4,0),[2,8]]],extra:[[2,5]]},
+             {pairs:[[F('circle',2,3,3),[8,12]],[F('strip',1,2,0),[2,4]],[F('circle',3,4,1),[9,12]]],extra:[[5,6]]}]},
+           {type:'match',pool:[
+             {pairs:[[[2,3],F('rect',8,12,0,4)],[[1,2],F('circle',4,8,1)],[[3,4],F('rect',9,12,2,4)]],extra:[F('circle',5,8,3)]},
+             {pairs:[[[1,3],F('rect',4,12,1,4)],[[1,2],F('rect',6,12,2,4)],[[3,4],F('circle',6,8,0)]],extra:[F('circle',3,8,3)]},
+             {pairs:[[[2,5],F('rect',4,10,2,5)],[[1,2],F('rect',5,10,0,5)],[[3,5],F('rect',6,10,1,5)]],extra:[F('circle',2,6,3)]},
+             {pairs:[[[1,4],F('rect',3,12,3,4)],[[1,3],F('circle',2,6,0)],[[2,3],F('rect',10,15,1,5)]],extra:[F('circle',3,8,2)]}]}]},
+   /* Ort 3: Erweitern als feineres Unterteilen sehen */
+   {name:'Der Kopierraum',bg:'kopier',
+    story:'Der Kopierer läuft von allein. Alles, was man ihm zeigt, zerschneidet er in feinere Stücke.',
+    voice:'Schneide feiner. Mehr Stücke, aber nicht mehr Papier.',
+    done:'Der Kopierer wird still, aber sein Lämpchen glimmt weiter lila. Im Ausgabefach liegt eine Fehlkopie: Am Rand ist etwas mitkopiert worden, das aussieht wie eine Bürste.',
+    tasks:[{type:'scale',fig:1,c:1,pool:[S(2,3,3),S(1,2,3),S(3,4,2),S(1,3,2)]},
+           {type:'scale',fig:1,c:2,pool:[S(2,5,3),S(3,4,3),S(5,6,2),S(3,5,4)]}]},
+   /* Ort 4: fehlende Zahl finden, dann vollständig kürzen */
+   {name:'Der Computerraum',bg:'computer',
+    story:'Im Computerraum laufen alle Monitore. Auf jedem fehlt eine Zahl, wie ein Pixelfehler.',
+    voice:'Etwas fehlt. Es fehlt immer etwas. Ich sehe es genau.',
+    done:'Die Monitore zeigen wieder den Anmeldebildschirm. Neben einer Tastatur liegt ein Ausdruck, auf dem jemand mit Rotstift korrigiert hat.',
+    tasks:[{type:'gap',pool:[Q(2,3,4,'top'),Q(3,4,5,'top'),Q(2,5,3,'top'),Q(5,6,4,'top')]},
+           {type:'gap',pool:[Q(3,5,4,'bot'),Q(15,20,5,'bot',':'),Q(4,7,3,'bot'),Q(18,24,6,'top',':')]},
+           {type:'scale',full:1,pool:[S(12,18,6,':'),S(16,24,8,':'),S(18,24,6,':'),S(12,20,4,':')]}]},
+   /* Ort 5: gleichwertige Brüche von falschen trennen (addiert, nur eine Zahl geändert, große Zahlen) */
+   {name:'Die Bibliothek',bg:'biblio',
+    story:'In der Bibliothek liegen überall Karteikarten mit Brüchen. Manche sind echte Doppelgänger, manche tun nur so. Zwei Bücherkisten stehen bereit.',
+    voice:'Große Zahlen machen keinen großen Bruch. Darauf fällt jedes Jahr jemand herein.',
+    done:'Die letzte Karte liegt in der Kiste. Draußen auf dem Flur rumpelt etwas Schweres heran.',
+    tasks:[{type:'sortfr',pool:[
+             {ref:[2,3],cards:[[4,6],[6,9],[4,5],[2,6]]},
+             {ref:[3,4],cards:[[6,8],[9,12],[5,6],[3,8]]},
+             {ref:[1,2],cards:[[3,6],[5,10],[3,4],[1,4]]},
+             {ref:[2,5],cards:[[4,10],[6,15],[4,7],[2,10]]}]},
+           {type:'sortfr',pool:[
+             {ref:[3,4],cards:[[15,20],[18,24],[12,15],[9,16]]},
+             {ref:[2,3],cards:[[8,12],[16,24],[12,16],[10,18]]},
+             {ref:[5,6],cards:[[10,12],[20,24],[15,20],[10,11]]},
+             {ref:[3,5],cards:[[9,15],[12,20],[6,15],[13,15]]}]}]}
+  ]},
+ /* Level 3: in Version 0.3 vollständig entfernt (Aufgaben werden neu konzipiert, siehe Übergabe-Notizen).
+    Level 4 und 5: noch zu bauen. Ein Eintrag ohne groups ist ein Platzhalter und bleibt auf dem Schulplan gesperrt. */
+ {place:'Die Mensa',topic:'Brüche als Quotienten'},
+ {place:'Die Sporthalle',topic:'Brüche auf der Zahlengeraden'},
+ {place:'Der Schulgarten',topic:'Brüche vergleichen'}
+];
+
+/* ENDGEGNER. Ein Level bekommt einen, indem es boss:'name' setzt. Die Aufgaben stammen aus den Pools des Levels
+   (Kurzfassungen über TYPES[typ].quick). secs = Sekunden, bis der Zettel trifft, je Aufgabentyp (geschätzt, bitte
+   mit einer Klasse erproben). fig = Figur des Gegners (Funktion, bekommt die Lampenfarbe), slow = Satz nach einer
+   Niederlage. speed = Zeitfaktor nach 0, 1, 2 … gelösten Aufgaben. ease = Zeitzuschlag pro
+   verlorenem Versuch (höchstens easeMax-mal). need = so viele Aufgaben müssen gelöst werden.
+   Man kommt mit den Leben an, die im Level übrig sind. Bei 0 Leben beginnt das ganze Level von vorn. */
+const BOSSES={
+ mopp:{name:'Wischmopp 3000',bg:'halle',need:5,
+  secs:{pick:9,enter:9,label:7,build:10,count:11,sort:8},
+  speed:[1,.95,.9,.85,.8],ease:.15,easeMax:3,
+  intro:['Wischmopp 3000 rollt aus dem Putzraum und versperrt dir den Weg. Über seiner Antenne funkelt es lila.',
+         '~Mein Zauber steckt in ihm. Er bewirft alles, was sich bewegt. Viel Glück!',
+         'Wischmopp schleudert Aufgabenzettel auf dich. Wehre fünf davon ab: Tippe die richtige Antwort an, bevor der Zettel dich trifft. Ein Treffer oder eine falsche Antwort kostet ein Leben.'],
+  lose:['Ein Zettel klatscht dir an die Stirn. Wischmopp dreht eine Ehrenrunde.',
+        '~Zu langsam! Das üben wir noch einmal. Von vorn!'],
+  fig:e=>mopp(e),slow:'Beim nächsten Mal fliegen Wischmopps Zettel etwas langsamer.'},
+ kopier:{name:'Kopiermeister K-2',bg:'ostflur',need:5,
+  secs:{scale:10,gap:9,match:11,sortfr:8},
+  speed:[1,.95,.9,.85,.8],ease:.15,easeMax:3,
+  intro:['Kaum trittst du aus der Bibliothek, rollt der Kopierer über den Flur heran. Sein Lämpchen leuchtet lila, und seine Klappe schnappt auf und zu.',
+         '~Mein Kopiermeister macht aus jedem Bruch einen Doppelgänger. Mal sehen, ob du die echten erkennst!',
+         'Der Kopiermeister K-2 schleudert Kopien mit Aufgaben auf dich. Wehre fünf dieser Zettel ab: Tippe die richtige Antwort an, bevor der Zettel dich trifft. Ein Treffer oder eine falsche Antwort kostet ein Leben.'],
+  lose:['Eine Kopie klatscht dir an die Stirn. Der Kopiermeister druckt sich selbst eine Urkunde.',
+        '~Zu langsam! Setzen. Das wiederholen wir. Von vorn!'],
+  fig:e=>kopierer(e),slow:'Beim nächsten Mal fliegen die Zettel des Kopiermeisters etwas langsamer.'}
+};
+const LIVES=5,TIPS=5;      // Leben und Tipps pro Level
+/* Level-Schalter auswerten (FREIGABE steht ganz oben im Skript): frei(i) = Level i ist freigegeben */
+const frei=i=>{const f=FREIGABE[i];return f===true||(typeof f==='string'&&new Date()>=new Date(f+'T00:00:00'))};
+const freiAb=i=>{const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(FREIGABE[i]);return m?`ab ${+m[3]}.${+m[2]}.${m[1]} freigegeben`:'noch nicht freigegeben'};
+
+/* ============ HELFER ============ */
+const $=(s,r=document)=>r.querySelector(s);
+const GLASS=['var(--g1)','var(--g2)','var(--g3)','var(--g4)'];
+const range=n=>[...Array(n).keys()];
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const paras=a=>a.map(p=>p[0]==='~'?`<p class="voice">${p.slice(1)}</p>`:`<p>${p}</p>`).join('');
+const fr=(n,d)=>`<span class="fr"><b>${n}</b><b>${d}</b></span>`;
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+const starsFor=p=>p<=3?3:p<=8?2:1;
+const stars=n=>`<span class="stars" aria-label="${n} von 3 Sternen">${'★'.repeat(n)}<i>${'★'.repeat(3-n)}</i></span>`;
+
+/* ---- Spielstand: n = abgeschlossene Level, T = Lehrermodus benutzt, lv = Fehlversuche/Tipps je Level ---- */
+const store={
+  get(){try{const s=JSON.parse(localStorage.getItem('wildermuth1'));if(s&&Array.isArray(s.lv))return s}catch(e){}return {n:0,T:0,lv:[]}},
+  set(v){try{localStorage.setItem('wildermuth1',JSON.stringify(v))}catch(e){}}};
+/* Code: 12 Zeichen (ohne O, 0, I, 1). 49 Bit Daten + 11 Bit Prüfsumme. */
+const ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',M49=(1n<<49n)-1n;
+const chk=v=>((v^(v>>23n))*40503n+977n)%2039n, ks=c=>((c+1n)*0x9E3779B97F4An)&M49;
+function encode(s){
+  let d=BigInt(s.n)|BigInt(s.T?1:0)<<3n;
+  for(let i=0;i<5;i++){const l=s.lv[i]||{e:0,t:0};d|=BigInt(Math.min(l.e,31))<<BigInt(4+i*9)|BigInt(Math.min(l.t,15))<<BigInt(9+i*9)}
+  const c=chk(d);let v=(d^ks(c))|c<<49n,out='';
+  for(let i=0;i<12;i++){out+=ABC[Number(v&31n)];v>>=5n;if(i%4===3&&i<11)out+='-'}
+  return out;
+}
+function decode(str){
+  const t=str.toUpperCase().replace(/[^A-Z0-9]/g,'');if(t.length!==12)return null;
+  let v=0n;for(let i=11;i>=0;i--){const k=ABC.indexOf(t[i]);if(k<0)return null;v=v<<5n|BigInt(k)}
+  const c=v>>49n,d=(v&M49)^ks(c);if(chk(d)!==c)return null;
+  const s={n:Number(d&7n),T:Number(d>>3n&1n),lv:[]};if(s.n>5)return null;
+  for(let i=0;i<5;i++)s.lv[i]={e:Number(d>>BigInt(4+i*9)&31n),t:Number(d>>BigInt(9+i*9)&15n)};
+  return s;
+}
+
+/* Zeichnet Kreis, Rechteck, Streifen oder Menge. on = gefärbte Teile, slots = Teile sind Ablageziele */
+function fig(t,on,slots){
+  const d=t.d,col=GLASS[t.c||0];
+  const a=i=>`class="cell${on.has(i)?' on':''}"${slots?` data-slot="${i}"`:''} style="--g:${t.rainbow?GLASS[i%4]:col}"`;
+  let s='',W=200,H=200;
+  if(t.shape==='circle'){
+    const p=k=>{const w=k/d*2*Math.PI-Math.PI/2;return (100+92*Math.cos(w)).toFixed(1)+' '+(100+92*Math.sin(w)).toFixed(1)};
+    for(let i=0;i<d;i++)s+=`<path ${a(i)} d="M100 100L${p(i)}A92 92 0 0 1 ${p(i+1)}Z"/>`;
+  }else if(t.shape==='set'){
+    const per=d>10?7:5;W=per*40;H=Math.ceil(d/per)*72;
+    for(let i=0;i<d;i++)s+=`<g class="key${on.has(i)?' on':''}" transform="translate(${i%per*40},${(i/per|0)*72})"><circle cx="20" cy="18" r="10" fill="none" stroke="currentColor" stroke-width="6"/><path fill="currentColor" d="M17 28h6v36h-6zM23 48h9v5h-9zM23 57h7v5h-7z"/></g>`;
+  }else{
+    const cols=t.cols||d,rows=d/cols,cw=44,ch=rows===1?64:44;W=cols*cw+8;H=rows*ch+8;
+    for(let i=0;i<d;i++)s+=`<rect ${a(i)} x="${4+i%cols*cw}" y="${4+(i/cols|0)*ch}" width="${cw}" height="${ch}" rx="2"/>`;
+  }
+  return `<svg class="fig" viewBox="0 0 ${W} ${H}" style="max-width:${Math.round(W*1.35)}px" role="img" aria-label="Darstellung mit ${d} Teilen">${s}</svg>`;
+}
+/* Rechteck fester Größe mit cols Spalten und rows Zeilen; die ersten n Spalten sind gefärbt.
+   Feste Außenmaße, damit beim feineren Unterteilen sichtbar bleibt: Das Ganze ändert sich nicht. */
+function gridFig(cols,rows,n,c){
+  const cw=240/cols,ch=132/rows;let s='';
+  for(let r=0;r<rows;r++)for(let i=0;i<cols;i++)s+=`<rect class="cell${i<n?' on':''}" style="--g:${GLASS[c||0]}" x="${4+i*cw}" y="${4+r*ch}" width="${cw}" height="${ch}" rx="2"/>`;
+  return `<svg class="fig" viewBox="0 0 248 140" style="max-width:300px" role="img" aria-label="Rechteck mit ${cols*rows} Teilen">${s}</svg>`;
+}
+/* Ein einzelnes Folienstück in der Form eines Fensterteils */
+function piece(t){
+  const st=`class="cell on" style="--g:${GLASS[t.c||0]}"`;let w=52,h=52,vb='0 0 52 52',s=`<rect ${st} x="4" y="4" width="44" height="44" rx="2"/>`;
+  if(t.shape==='circle'){
+    const a=Math.PI/t.d,x=(92*Math.sin(a)).toFixed(1),y=(92*Math.cos(a)).toFixed(1);
+    w=2*x+8;h=100;vb=`${-x-4} -96 ${w} ${h}`;s=`<path ${st} d="M0 0L${-x} ${-y}A92 92 0 0 1 ${x} ${-y}Z"/>`;
+  }
+  return `<svg viewBox="${vb}" width="${Math.round(w*1.35)}" height="${Math.round(h*1.35)}" aria-hidden="true">${s}</svg>`;
+}
+function coat(parts){
+  const u=30;let s='';
+  parts.forEach(p=>s+=`<rect class="cell${p.on?' on':''}" style="--g:${GLASS[0]}" x="${4+p.x*u}" y="${4+p.y*u}" width="${p.w*u}" height="${p.h*u}"/>`);
+  for(let i=1;i<4;i++)s+=`<path class="gridl" stroke-dasharray="3 4" d="M${4+i*u} 4v${4*u}M4 ${4+i*u}h${4*u}"/>`;
+  return `<svg class="fig" viewBox="0 0 128 128" role="img" aria-label="Fliese mit ${parts.length} Teilen">${s}</svg>`;
+}
+
+/* Zahleneingabe: Feld, gelesener Wert (null = leer) und Sperren nach der Lösung */
+const numIn=(name,label)=>`<input class="num" data-in="${name}" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="${label}">`;
+const numVal=name=>{const v=$(`#stage [data-in="${name}"]`).value;return v===''?null:+v};
+const lockIn=()=>{document.querySelectorAll('#stage .num').forEach(i=>i.disabled=true);$('#stage [data-act]').hidden=true};
+
+/* ============ SZENEN: Hintergründe, Figuren, Tür, Markierungen (alles SVG, 800 x 300, Boden bei y = 250) ============ */
+const GC=['#d9264a','#2a6fe8','#12a064','#f08a00'];
+const lines=(y,c,step=80)=>range(Math.ceil(800/step)).map(i=>`<path d="M${i*step+40} ${y}l-22 50" stroke="${c}" stroke-width="2"/>`).join('');
+const panes=(x,y,cols,rows,cw,ch,col)=>range(cols*rows).map(j=>`<rect x="${x+j%cols*cw}" y="${y+(j/cols|0)*ch}" width="${cw}" height="${ch}" fill="${col(j)}" stroke="#fff" stroke-width="2"/>`).join('');
+/* Zauberer, Füße im Ursprung, etwa 80 hoch. Die Turnschuhspitzen unter dem Umhang sind ein Hinweis auf die Auflösung. */
+const WIZ=`<ellipse cx="-7" cy="-3" rx="7" ry="4" fill="#1b1b1b"/><ellipse cx="7" cy="-3" rx="7" ry="4" fill="#1b1b1b"/><circle cx="-12" cy="-3" r="2.4" fill="#fff"/><circle cx="12" cy="-3" r="2.4" fill="#fff"/>
+<path d="M-19 -5L-7 -48H7L19 -5Z" fill="#5b34a8"/><circle cx="-6" cy="-18" r="2" fill="#ffd95a"/><circle cx="5" cy="-28" r="1.6" fill="#ffd95a"/><circle cx="7" cy="-12" r="1.6" fill="#ffd95a"/>
+<ellipse cx="0" cy="-43" rx="11" ry="9" fill="#f4f1ff" stroke="#2b2140" stroke-width="1.5"/><circle cx="-4" cy="-44" r="2.1" fill="#2b2140"/><circle cx="4" cy="-44" r="2.1" fill="#2b2140"/>
+<path d="M-13 -50H13L2 -82Z" fill="#3d2380"/><ellipse cx="0" cy="-50" rx="17" ry="3.5" fill="#3d2380"/>`;
+/* Spielfigur, Füße im Ursprung. Die Beine (.la, .lb) werden beim Gehen gedreht. */
+const KID=`<rect class="la" x="-7" y="-26" width="7" height="26" rx="3" fill="#2f3e5c"/><rect class="lb" x="1" y="-26" width="7" height="26" rx="3" fill="#2f3e5c"/>
+<rect x="-20" y="-58" width="11" height="27" rx="4" fill="#2a6fe8"/><rect x="-12" y="-62" width="24" height="38" rx="8" fill="#f5c400"/>
+<circle cx="0" cy="-74" r="12" fill="#f0c8a0"/><path d="M-12 -76a12 12 0 0 1 24 0h7v4h-31z" fill="#b84a00"/><circle cx="5" cy="-72" r="1.8" fill="#16302b"/>`;
+/* Putzroboter, Räder im Ursprung. eye = Farbe der Lampen (lila = verzaubert) */
+const mopp=eye=>`<circle cx="-18" cy="-8" r="8" fill="#39474f"/><circle cx="18" cy="-8" r="8" fill="#39474f"/>
+<rect x="-30" y="-78" width="60" height="64" rx="10" fill="#d7e0e4" stroke="#39474f" stroke-width="3"/><rect x="-22" y="-70" width="44" height="26" rx="5" fill="#1d2730"/>
+<circle cx="-9" cy="-57" r="5" fill="${eye}"/><circle cx="9" cy="-57" r="5" fill="${eye}"/>
+<text x="0" y="-26" text-anchor="middle" font-size="9" font-weight="700" fill="#39474f">WM 3000</text>
+<path d="M0 -78v-12" stroke="#39474f" stroke-width="3"/><circle cx="0" cy="-94" r="4.5" fill="${eye}"/>
+<path d="M-30 -50L-58 -30l-8 26" stroke="#39474f" stroke-width="5" fill="none" stroke-linejoin="round"/><path d="M-76 -4h20M-73 -4v9M-66 -4v10M-59 -4v9" stroke="#8fa3ad" stroke-width="4" stroke-linecap="round"/>`;
+/* Kopierer (Level 2), Rollen im Ursprung. eye = Farbe der Lampen (lila = verzaubert). Steht im Kopierraum und ist der Endgegner. */
+const kopierer=eye=>`<circle cx="-20" cy="-5" r="5.5" fill="#39474f"/><circle cx="20" cy="-5" r="5.5" fill="#39474f"/>
+<path d="M-33 -74L-25 -96H33L37 -74Z" fill="#c2ced4" stroke="#39474f" stroke-width="3" stroke-linejoin="round"/>
+<rect x="-32" y="-60" width="64" height="52" rx="5" fill="#d7e0e4" stroke="#39474f" stroke-width="3"/>
+<rect x="-37" y="-74" width="74" height="15" rx="4" fill="#eef3f5" stroke="#39474f" stroke-width="3"/>
+<rect x="-26" y="-53" width="34" height="18" rx="3" fill="#1d2730"/><circle cx="-16" cy="-44" r="4.5" fill="${eye}"/><circle cx="-2" cy="-44" r="4.5" fill="${eye}"/>
+<circle cx="20" cy="-45" r="4" fill="${eye}"/><text x="19" y="-14" text-anchor="middle" font-size="9" font-weight="700" fill="#39474f">K-2</text>
+<rect x="-26" y="-29" width="34" height="6" rx="2" fill="#aebcc3"/><rect x="-26" y="-19" width="34" height="6" rx="2" fill="#aebcc3"/>
+<path d="M-33 -40h-24l-5 7h29z" fill="#aebcc3" stroke="#39474f" stroke-width="2.5" stroke-linejoin="round"/><rect x="-56" y="-45" width="22" height="5" fill="#fff" stroke="#39474f" stroke-width="1.5"/>`;
+const door=open=>`<rect x="702" y="124" width="68" height="126" fill="#5f6f6a"/><rect x="708" y="130" width="56" height="120" fill="${open?'#22312d':'#8fa39c'}"/>`
+  +(open?'<path d="M708 130l22 10v110h-22z" fill="#a9bbb5"/>':'<circle cx="756" cy="194" r="3.5" fill="#33423e"/>')
+  +`<circle cx="736" cy="110" r="7" fill="${open?'#1fae6b':'#d1344e'}" stroke="#fff" stroke-width="2"/>`;
+const spot=(x,st)=>`<g class="hs ${st}" transform="translate(${x},0)"><ellipse cx="0" cy="264" rx="26" ry="7"/><path d="M0 252v-48"/><circle cx="0" cy="184" r="19"/><text x="0" y="191" text-anchor="middle" font-size="20" font-weight="700">${st==='done'?'✓':st==='act'?'!':'?'}</text></g>`;
+const BG={
+ eingang:()=>`<rect width="800" height="300" fill="#cfe6f5"/><circle cx="64" cy="64" r="30" fill="#ffe9a3"/>
+  <rect x="128" y="22" width="672" height="228" fill="#ecdcc0"/><rect x="128" y="22" width="672" height="12" fill="#b07c57"/>
+  <text x="412" y="66" text-anchor="middle" font-size="21" font-weight="700" letter-spacing="3" fill="#6d4c35">WILDERMUTH-GYMNASIUM</text>
+  ${[168,290,412,534].map((x,i)=>{const c=[2,3,2,4][i];return `<rect x="${x-4}" y="86" width="92" height="112" fill="#fff"/>`+panes(x,90,c,2,84/c,52,j=>(j+i)%3?'#bfe0f2':GC[(i+j)%4])}).join('')}
+  <rect x="646" y="150" width="42" height="30" rx="3" fill="#2b2140"/><circle cx="667" cy="165" r="7" fill="#b89cf0"/>
+  <rect y="250" width="800" height="50" fill="#cbc5b6"/>${lines(250,'#b3ac9b')}
+  <path d="M0 250v-42q14-20 30-6q14-22 34-4q18-18 34 4q20-6 22 48z" fill="#3f8f4c"/><path d="M0 250v-22q22-14 40 0q20-12 38 2q14 2 16 20z" fill="#57a85f"/>`,
+ flur:()=>`<rect width="800" height="250" fill="#e3ece7"/>${[120,360,600].map(x=>`<rect x="${x}" width="90" height="8" fill="#fff6cf"/>`).join('')}
+  <circle cx="52" cy="62" r="20" fill="#fff" stroke="#16302b" stroke-width="3"/><path d="M52 62v-12M52 62h8" stroke="#16302b" stroke-width="3" stroke-linecap="round"/>
+  <g transform="translate(106,250) scale(.9)">${WIZ}</g>
+  ${range(9).map(i=>{const x=112+i*64;return `<rect x="${x}" y="92" width="58" height="150" rx="3" fill="${i%2?'#4a8fc9':'#3c7ab3'}" stroke="#285a88" stroke-width="2"/><rect x="${x+15}" y="106" width="28" height="18" fill="#fff"/><rect x="${x+15}" y="106" width="${[14,7,21][i%3]}" height="18" fill="${GC[i%4]}"/><path d="M${x+14} 140h30M${x+14} 148h30" stroke="#285a88" stroke-width="2"/><circle cx="${x+48}" cy="176" r="3" fill="#16302b"/>`}).join('')}
+  <rect y="242" width="800" height="8" fill="#9db2a9"/><rect y="250" width="800" height="50" fill="#c6d2cc"/>${lines(250,'#aebdb6')}`,
+ kunst:()=>`<rect width="800" height="250" fill="#f4ecdd"/>
+  <rect x="66" y="36" width="258" height="156" fill="#fff"/>${panes(72,42,6,3,41,48,j=>[0,3,4,7,8,11,13,16].includes(j)?GC[j%4]:'#d6ecf7')}
+  <rect x="372" y="84" width="200" height="8" fill="#9a7550"/>${range(6).map(i=>`<rect x="${384+i*31}" y="62" width="20" height="22" rx="3" fill="${GC[i%4]}"/>`).join('')}
+  ${[430,590].map((x,i)=>`<path d="M${x-34} 250l34-130l34 130M${x} 120v130" stroke="#8a6642" stroke-width="5" fill="none"/><rect x="${x-34}" y="128" width="68" height="64" fill="#fff" stroke="#8a6642" stroke-width="3"/><circle cx="${x-10+i*14}" cy="${156+i*6}" r="14" fill="${GC[i+1]}"/>`).join('')}
+  <rect y="250" width="800" height="50" fill="#dcc29a"/>${lines(250,'#c4a97f',100)}`,
+ loge:()=>`<rect width="800" height="250" fill="#e1e8ef"/>
+  <rect x="104" y="52" width="216" height="124" rx="4" fill="#a8774d"/>${range(18).map(i=>{const x=124+i%6*35,y=72+(i/6|0)*36;return `<g fill="none" stroke="${[2,7,9,14].includes(i)?'#ffd24a':'#3f2c1c'}" stroke-width="3"><circle cx="${x}" cy="${y}" r="5"/><path d="M${x} ${y+5}v16M${x} ${y+15}h5"/></g>`}).join('')}
+  <rect x="390" y="182" width="210" height="12" fill="#8a6a4a"/><path d="M402 194v56M588 194v56" stroke="#8a6a4a" stroke-width="8"/>
+  <rect x="430" y="124" width="78" height="50" rx="4" fill="#27343c"/><rect x="462" y="174" width="14" height="8" fill="#27343c"/><rect x="540" y="164" width="18" height="18" rx="3" fill="#d9264a"/>
+  <rect x="34" y="216" width="60" height="34" rx="4" fill="#d9264a"/><rect x="52" y="208" width="24" height="8" fill="#8c1a30"/>
+  <g transform="translate(560,250) scale(.8)">${WIZ}</g><rect x="524" y="194" width="76" height="56" fill="#9a7a58"/>
+  <path d="M650 250L668 96" stroke="#9a7550" stroke-width="5"/><path d="M634 250h32l-6-18h-18z" fill="#e0b84a"/>
+  <rect y="250" width="800" height="50" fill="#bfc8d1"/>${lines(250,'#a9b3bd')}`,
+ halle:()=>`<rect width="800" height="250" fill="#e7efe9"/>
+  ${range(4).map(i=>`<rect x="${52+i*158}" y="88" width="118" height="110" fill="#cfe6f5" stroke="#fff" stroke-width="6"/><path d="M${111+i*158} 88v110M${52+i*158} 143h118" stroke="#fff" stroke-width="4"/>`).join('')}
+  <rect x="160" y="222" width="150" height="10" fill="#9a7550"/><path d="M172 232v18M298 232v18" stroke="#9a7550" stroke-width="6"/>
+  <path d="M628 216q-30-30-22-58q20 18 22 58q2-44 26-60q8 34-26 60" fill="#3f8f4c"/><path d="M610 250v-34h36v34z" fill="#b8683a"/>
+  <rect y="250" width="800" height="50" fill="#d5ddd7"/>${range(17).map(i=>`<path d="M${i*50+20} 250l-20 50h50l20-50z" fill="${[2,5,9,12].includes(i)?GC[i%4]:i%2?'#c3cec7':'#d5ddd7'}" stroke="#aab7af"/>`).join('')}`,
+ /* --- Level 2: erster Stock --- */
+ treppe:()=>`<rect width="800" height="250" fill="#e8eef4"/>
+  <text x="405" y="36" text-anchor="middle" font-size="16" font-weight="700" letter-spacing="4" fill="#6d7c88">1. STOCK</text>
+  <rect x="566" y="46" width="104" height="124" fill="#cfe6f5" stroke="#fff" stroke-width="6"/><path d="M618 46v124M566 108h104" stroke="#fff" stroke-width="4"/>
+  <g transform="translate(22,96) scale(.55)">${WIZ}</g>
+  ${range(7).map(i=>`<rect x="${i*30}" y="${96+i*22}" width="31" height="${154-i*22}" fill="${i%2?'#b9c4cf':'#a7b4c0'}"/><rect x="${i*30}" y="${96+i*22}" width="31" height="4" fill="#8f9daa"/>`).join('')}
+  <path d="M0 40L214 198" stroke="#5f6f7c" stroke-width="6" stroke-linecap="round"/>${range(4).map(i=>`<path d="M${30+i*56} ${62+i*41.4}V${118+i*44}" stroke="#5f6f7c" stroke-width="4"/>`).join('')}<path d="M214 198v52" stroke="#5f6f7c" stroke-width="6"/>
+  <rect x="300" y="52" width="210" height="118" rx="8" fill="#1d2730"/><rect x="309" y="61" width="192" height="100" rx="3" fill="#2b2140"/>
+  <text x="405" y="108" text-anchor="middle" font-size="30" font-weight="700" fill="#b89cf0">3/4 = ?/?</text><text x="405" y="142" text-anchor="middle" font-size="17" font-weight="700" fill="#ffd95a">· 3      : 2      · 4</text>
+  <rect y="242" width="800" height="8" fill="#aab5c0"/><rect y="250" width="800" height="50" fill="#c9d1d9"/>${lines(250,'#b1bbc5')}`,
+ klasse:()=>`<rect width="800" height="250" fill="#f3efe2"/>
+  <rect x="28" y="52" width="124" height="118" fill="#cfe6f5" stroke="#fff" stroke-width="6"/><path d="M90 52v118M28 111h124" stroke="#fff" stroke-width="4"/>
+  <circle cx="668" cy="70" r="20" fill="#fff" stroke="#16302b" stroke-width="3"/><path d="M668 70v-12M668 70h9" stroke="#16302b" stroke-width="3" stroke-linecap="round"/>
+  <rect x="212" y="38" width="424" height="146" rx="4" fill="#fff" stroke="#9aa8a2" stroke-width="5"/><rect x="212" y="184" width="424" height="7" fill="#9aa8a2"/>
+  ${[284,424,564].map((x,i)=>`<rect x="${x-40}" y="48" width="80" height="56" rx="7" fill="#16302b"/><rect x="${x-34}" y="54" width="68" height="44" fill="#eef3ff"/><rect x="${x-34}" y="54" width="${[34,23,51][i]}" height="44" fill="${GC[i]}"/><path d="M${x-34+[34,23,51][i]} 54v44" stroke="#16302b" stroke-width="2"/>`).join('')}
+  <path d="M232 128h96M232 143h150M232 158h70M232 172h120M410 128h130M410 143h64M410 158h170M410 172h90" stroke="#6a3fb5" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="22 7"/>
+  ${range(4).map(i=>`<rect x="${560+i*18}" y="${168-i%2*3}" width="13" height="13" rx="2" fill="${GC[i]}"/>`).join('')}
+  <path d="M160 250l8-36M204 250l-8-36M164 234h36" stroke="#b84a00" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="160" y="208" width="44" height="9" rx="3" fill="#dd6a1c"/>
+  <rect y="250" width="800" height="50" fill="#d9c7a3"/>${lines(250,'#c2ae87',100)}`,
+ kopier:()=>`<rect width="800" height="250" fill="#e9e6ee"/>
+  <rect x="34" y="66" width="156" height="184" fill="#a8855e"/>${range(3).map(r=>`<rect x="42" y="${76+r*58}" width="140" height="48" fill="#7b5e40"/>`+range(3).map(j=>{const h=14+(r*5+j*9)%22;return `<rect x="${50+j*44}" y="${124+r*58-h}" width="36" height="${h}" fill="#fff" stroke="#c9c2d3"/>`}).join('')).join('')}
+  <rect x="548" y="52" width="130" height="92" rx="3" fill="#c79a63" stroke="#8a6642" stroke-width="4"/>${range(5).map(i=>`<rect x="${558+i%3*40}" y="${62+(i/3|0)*40}" width="30" height="32" fill="${['#fff','#fff6cf','#fff','#dfe9ff','#fff'][i]}" transform="rotate(${[-5,4,-2,6,-4][i]} ${573+i%3*40} ${78+(i/3|0)*40})"/>`).join('')}
+  ${[[262,92,-18],[314,58,12],[496,70,-9],[226,150,24],[524,168,15]].map(([x,y,a])=>`<g transform="translate(${x},${y}) rotate(${a})"><rect x="-13" y="-17" width="26" height="34" fill="#fff" stroke="#b7b0c4" stroke-width="1.5"/><path d="M-7 -8h14M-7 -1h14M-7 6h9" stroke="#b89cf0" stroke-width="2"/></g>`).join('')}
+  <g transform="translate(424,250) scale(1.55)">${kopierer('#b06cff')}</g>
+  <g transform="translate(246,243) rotate(-10)"><rect x="-19" y="-13" width="38" height="26" fill="#fff" stroke="#b7b0c4" stroke-width="1.5"/><path d="M19 -11l-11 2 9 2-10 2 10 2-9 2 11 2 -9 2 9 3z" fill="#4a3b2a"/></g>
+  <path d="M560 250q6-16 30-12q10-14 30-4q22-6 28 16z" fill="#fff" stroke="#b7b0c4" stroke-width="1.5"/>
+  <rect y="250" width="800" height="50" fill="#cfcad8"/>${lines(250,'#b8b2c4')}`,
+ computer:()=>`<rect width="800" height="250" fill="#e4edf3"/>${[150,400,650].map(x=>`<rect x="${x-45}" width="90" height="8" fill="#fff6cf"/>`).join('')}
+  <rect x="36" y="48" width="140" height="92" rx="4" fill="#fff" stroke="#9aa8b2" stroke-width="3"/><rect x="36" y="48" width="140" height="22" rx="4" fill="#2a6fe8"/><path d="M50 86h110M50 100h84M50 114h100M50 128h60" stroke="#9aa8b2" stroke-width="4" stroke-linecap="round"/>
+  ${range(4).map(i=>{const x=246+i*122;return `<rect x="${x-46}" y="112" width="92" height="66" rx="6" fill="#1d2730"/><rect x="${x-39}" y="119" width="78" height="52" fill="#2b2140"/><text x="${x}" y="154" text-anchor="middle" font-size="24" font-weight="700" fill="#b89cf0">${['2/?','?/12','3/?','?/20'][i]}</text><rect x="${x-7}" y="178" width="14" height="12" fill="#39474f"/><rect x="${x-24}" y="188" width="48" height="6" rx="2" fill="#39474f"/>`}).join('')}
+  <rect x="180" y="194" width="500" height="11" fill="#8a9aa6"/><path d="M196 205v45M664 205v45M430 205v45" stroke="#8a9aa6" stroke-width="8"/>
+  ${[306,552].map(x=>`<rect x="${x-24}" y="218" width="48" height="9" rx="3" fill="#2a6fe8"/><path d="M${x} 227v16M${x-18} 250l18-7l18 7" stroke="#39474f" stroke-width="4" fill="none"/>`).join('')}
+  <rect y="250" width="800" height="50" fill="#c3ccd6"/>${lines(250,'#aab4c0')}`,
+ biblio:()=>`<rect width="800" height="250" fill="#efe6d6"/><g transform="translate(243,250) scale(.6)">${WIZ}</g>
+  ${range(3).map(s=>{const x=40+s*215;return `<rect x="${x}" y="36" width="190" height="214" fill="#8a6642"/>`+range(3).map(r=>`<rect x="${x+8}" y="${46+r*67}" width="174" height="58" fill="#5c4128"/>`+range(11).map(b=>{const h=30+(b*7+r*5+s*3)%24;return `<rect x="${x+12+b*15.4}" y="${104+r*67-h}" width="12" height="${h}" fill="${['#d9264a','#2a6fe8','#12a064','#f08a00','#6a3fb5','#e8d9b0'][(b*5+r*2+s)%6]}"/>`}).join('')).join('')}).join('')}
+  ${[388,452].map((x,i)=>`<rect x="${x-26}" y="218" width="52" height="32" fill="#d19a58" stroke="#8a5a2b" stroke-width="3"/><path d="M${x-26} 229h52" stroke="#8a5a2b" stroke-width="2"/><rect x="${x-12}" y="${208-i*3}" width="16" height="12" fill="#fff" stroke="#b7a98f" transform="rotate(${i?9:-8} ${x} 212)"/>`).join('')}
+  <rect y="250" width="800" height="50" fill="#cdb892"/>${lines(250,'#b8a27a',100)}`,
+ ostflur:()=>`<rect width="800" height="250" fill="#e6ebf2"/>${[160,420,680].map(x=>`<rect x="${x-45}" y="70" width="90" height="7" fill="#fff6cf"/>`).join('')}
+  <rect x="250" y="86" width="240" height="30" rx="4" fill="#16302b"/><text x="370" y="108" text-anchor="middle" font-size="19" font-weight="700" letter-spacing="4" fill="#fff">BIBLIOTHEK</text>
+  <rect x="290" y="124" width="160" height="126" fill="#8a6642"/><path d="M370 124v126" stroke="#5c4128" stroke-width="4"/><rect x="304" y="138" width="52" height="50" fill="#cfe6f5"/><rect x="384" y="138" width="52" height="50" fill="#cfe6f5"/><circle cx="362" cy="200" r="3.5" fill="#33241a"/><circle cx="378" cy="200" r="3.5" fill="#33241a"/>
+  <rect x="36" y="104" width="170" height="84" rx="3" fill="#c79a63" stroke="#8a6642" stroke-width="4"/>${range(4).map(i=>`<rect x="${48+i*39}" y="${116+i%2*14}" width="30" height="38" fill="${['#fff','#fff6cf','#dfe9ff','#fff'][i]}" transform="rotate(${[-4,5,-3,4][i]} ${63+i*39} 140)"/>`).join('')}
+  <rect y="242" width="800" height="8" fill="#aab5c0"/><rect y="250" width="800" height="50" fill="#c9d1d9"/>${lines(250,'#b1bbc5')}
+  ${[[210,272,12],[262,286,-20],[470,270,-8],[520,288,25],[610,274,-14]].map(([x,y,a])=>`<rect x="${x-15}" y="${y-5}" width="30" height="10" fill="#fff" stroke="#b7b0c4" transform="rotate(${a} ${x} ${y})"/>`).join('')}`
+};
+/* Leben (Herzen) und Schutzschilde als kleine SVG-Symbole */
+const ICON={h:'M12 21s-8-5.3-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.7-8 11-8 11z',s:'M12 2l8 3v6c0 5-3.4 9-8 11-4.6-2-8-6-8-11V5z'};
+const icons=(k,n,max)=>range(Math.max(n,max||0)).map(i=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path class="${k}${i<n?'':' off'}" d="${ICON[k]}"/></svg>`).join('');
+const hearts=(n,sh)=>`<span class="lives" role="img" aria-label="${n} von ${LIVES} Leben${sh?', '+sh+' Schutzschilde':''}">${sh?icons('s',sh):''}${icons('h',n,LIVES)}</span>`;
+
+/* ============ AUFGABENTYPEN: je render, drop, Tipp, Frage; quick = Kurzfassung für den Endgegner ============ */
+const TYPES={
+ pick:{
+  q:t=>t.shape==='set'?'Welcher Anteil der Schlüssel ist golden? Ziehe die passende Bruchkarte in den Kartenleser.':'Welcher Anteil des Fensters ist gefärbt? Ziehe die passende Bruchkarte in den Kartenleser.',
+  tip:t=>t.shape==='set'?'Zähle zuerst alle Schlüssel am Bund. Diese Zahl steht unten im Bruch.':'Zähle zuerst, in wie viele gleich große Teile das Fenster geteilt ist. Diese Zahl steht unten im Bruch.',
+  render(t){
+    const o=shuffle([[t.n,t.d,''],[t.n,t.d-t.n,'rest'],[t.d,t.n,'swap'],[t.d-t.n,t.d,'inv']]);
+    return `<div class="row"><div class="figbox">${fig(t,new Set(t.f))}</div><div class="lock" data-slot="lock"><span class="ph">Karte hier ablegen</span></div></div>
+    <div class="tray" data-slot="tray">${o.map(x=>`<button class="drag tile" data-val="${x[2]}">${fr(x[0],x[1])}</button>`).join('')}</div>
+    <button class="btn" data-act="check" disabled>Prüfen</button>`;
+  },
+  drop(t,el,slot){put(el,slot)},
+  check(t){
+    const k=t.shape==='set';
+    checkAll(el=>this.why(k)[el.dataset.val]||null);
+  },
+  why:k=>({rest:k?'Du hast die goldenen mit den übrigen Schlüsseln verglichen. Der Nenner zählt alle Schlüssel am Bund.':'Du hast die gefärbten mit den ungefärbten Teilen verglichen. Der Nenner zählt alle Teile, auch die gefärbten.',
+           swap:k?'Zähler und Nenner sind vertauscht. Unten steht die Anzahl aller Schlüssel, oben die Anzahl der goldenen.':'Zähler und Nenner sind vertauscht. Unten steht die Anzahl aller Teile, oben die Anzahl der gefärbten.',
+           inv:k?'Du hast die Schlüssel gezählt, die nicht golden sind. Der Zähler zählt die goldenen.':'Du hast die ungefärbten Teile gezählt. Der Zähler zählt die gefärbten.'}),
+  quick(t){
+    const k=t.shape==='set',w=this.why(k);
+    if(t.d>(k?9:10))return null;
+    return {q:k?'Welcher Anteil der Schlüssel ist golden?':'Welcher Anteil des Fensters ist gefärbt?',fig:fig(t,new Set(t.f)),
+      opts:[[fr(t.n,t.d),''],[fr(t.n,t.d-t.n),w.rest],[fr(t.d,t.n),w.swap],[fr(t.d-t.n,t.d),w.inv]]};
+  }},
+ enter:{
+  q:()=>'Welcher Anteil des Fensters ist gefärbt? Tippe Zähler und Nenner ein.',
+  tip:()=>'Zähle zuerst, in wie viele gleich große Teile das Fenster geteilt ist. Diese Zahl steht unten im Bruch. Oben steht, wie viele Teile gefärbt sind.',
+  render(t){
+    return `<div class="row"><div class="figbox">${fig(t,new Set(t.f))}</div>
+    <div class="lab">${numIn('top','Zähler')}<div class="bar"></div>${numIn('bot','Nenner')}</div></div>
+    <button class="btn" data-act="check">Antwort prüfen</button>`;
+  },
+  check(t){
+    const a=numVal('top'),b=numVal('bot'),n=t.n,d=t.d;
+    if(a==null||b==null)return say('tip','Noch nicht fertig','Tippe in beide Felder eine Zahl: oben den Zähler, unten den Nenner.');
+    if(a===n&&b===d){lockIn();return solved(`${n} von ${d} Teilen sind gefärbt, also ${fr(n,d)}.`)}
+    if(b&&a*d===b*n)return say('tip','Fast',`${fr(a,b)} ist genauso groß. Schreibe den Bruch aber so, wie das Fenster geteilt ist: Zähle die Teile im Bild.`);
+    wrong(a===d&&b===n?'Zähler und Nenner sind vertauscht. Unten steht die Anzahl aller Teile, oben die Anzahl der gefärbten.'
+      :a===n&&b===d-n?'Du hast die gefärbten mit den ungefärbten Teilen verglichen. Der Nenner zählt alle Teile, auch die gefärbten.'
+      :a===d-n&&b===d?'Du hast die ungefärbten Teile gezählt. Der Zähler zählt die gefärbten.'
+      :b===d?'Der Nenner stimmt. Zähle die gefärbten Teile noch einmal.'
+      :a===n?'Der Zähler stimmt. Zähle noch einmal alle Teile des Fensters, auch die gefärbten.'
+      :'Zähle erst alle Teile des Fensters (Nenner, unten), dann die gefärbten Teile (Zähler, oben).',$('#stage .lab'));
+  },
+  quick(t){
+    if(t.d>9)return null;
+    const top=Math.random()<.5,n=t.n,d=t.d;      // top = der Zähler fehlt
+    return {q:'Welcher Anteil des Fensters ist gefärbt? Tippe die fehlende Zahl an.',fig:fig(t,new Set(t.f))+`<span class="goal">${top?fr('?',d):fr(n,'?')}</span>`,
+      opts:top?[[n,''],[d,`${d} ist die Anzahl aller Teile, sie steht schon unten. Oben steht die Anzahl der gefärbten Teile.`],[d-n,'Du hast die ungefärbten Teile gezählt. Der Zähler zählt die gefärbten.']]
+              :[[d,''],[n,`${n} ist die Anzahl der gefärbten Teile, sie steht schon oben. Unten steht die Anzahl aller Teile.`],[d-n,'Du hast die gefärbten mit den ungefärbten Teilen verglichen. Der Nenner zählt alle Teile, auch die gefärbten.']]};
+  }},
+ count:{
+  q:t=>`An diesem Bund hängen ${t.d*(t.k||1)} Schlüssel`+(t.k?` in ${t.d} gleich großen Bündeln`:'')+`. ${fr(t.n,t.d)} der Schlüssel werden gleich zu Gold. Wie viele Schlüssel sind das? Tippe die Zahl ein.`,
+  tip:t=>t.k?`Der Nenner ${t.d} teilt den Bund in ${t.d} gleich große Bündel. Der Zähler sagt, wie viele Bündel golden sind. Zähle die Schlüssel in diesen Bündeln.`
+    :'Der Nenner nennt die Anzahl aller Schlüssel am Bund. Der Zähler nennt, wie viele davon golden sind.',
+  keys(t,gold){
+    if(!t.k)return fig({shape:'set',d:t.d},new Set(gold?range(t.n):[]));
+    const key=`<circle cx="20" cy="18" r="10" fill="none" stroke="currentColor" stroke-width="6"/><path fill="currentColor" d="M17 28h6v36h-6zM23 48h9v5h-9zM23 57h7v5h-7z"/>`;
+    return `<div class="bundles" role="img" aria-label="${t.d} Bündel mit je ${t.k} Schlüsseln">`+range(t.d).map(i=>{const on=gold&&i<t.n;
+      return `<div class="bundle${on?' on':''}"><svg viewBox="0 0 ${t.k*34+6} 72" width="${t.k*27+5}" height="58" aria-hidden="true">${range(t.k).map(j=>`<g class="key${on?' on':''}" transform="translate(${j*34},0)">${key}</g>`).join('')}</svg></div>`}).join('')+`</div>`;
+  },
+  render(t){
+    return `<div class="row"><div class="figbox" id="keys">${this.keys(t)}</div>
+    <div class="side"><div class="goal">${fr(t.n,t.d)}</div><div class="labrow">${numIn('x','Anzahl der goldenen Schlüssel')}<span>Schlüssel</span></div></div></div>
+    <button class="btn" data-act="check">Antwort prüfen</button>`;
+  },
+  check(t){
+    const v=numVal('x'),n=t.n,d=t.d,k=t.k||1,T=d*k,el=$('#stage .labrow');
+    if(v==null)return say('tip','Noch nicht fertig','Tippe eine Zahl in das Feld.');
+    if(v===n*k){lockIn();$('#keys').innerHTML=this.keys(t,true);
+      return solved(t.k?`${n} von ${d} Bündeln sind golden. In jedem Bündel hängen ${k} Schlüssel, zusammen ${n*k}.`:`${n} von ${d} Schlüsseln sind golden.`)}
+    if(!t.k)return wrong(v===d?`${d} ist der Nenner: So viele Schlüssel hängen insgesamt am Bund. Wie viele davon golden sind, sagt der Zähler.`
+      :v===d-n?`${v} Schlüssel sind nicht golden. Gefragt sind die goldenen.`
+      :'Schau auf den Bruch: Der Nenner zählt alle Schlüssel, der Zähler die goldenen.',el);
+    wrong(v===n?`${n} ist die Anzahl der goldenen Bündel. Gefragt sind die Schlüssel: In jedem Bündel hängen ${k}.`
+      :v===k?`${k} Schlüssel hängen in einem Bündel, das ist ${fr(1,d)} des Bundes. Golden sind aber ${n} Bündel.`
+      :v===d?`${d} ist die Anzahl der Bündel. Golden sind ${n} davon. Zähle die Schlüssel in diesen Bündeln.`
+      :v===T?`${T} sind alle Schlüssel am Bund. Golden sind nur ${n} von ${d} Bündeln.`
+      :v===T-n*k?`${v} Schlüssel sind nicht golden. Gefragt sind die goldenen.`
+      :`Der Nenner ${d} teilt den Bund in ${d} Bündel mit je ${k} Schlüsseln. Der Zähler sagt: ${n} Bündel sind golden.`,el);
+  },
+  quick(t){
+    if(!t.k)return null;
+    const n=t.n,d=t.d,k=t.k,T=d*k;
+    return {q:`${fr(n,d)} von ${T} Schlüsseln werden zu Gold. Wie viele Schlüssel sind das?`,fig:this.keys(t),
+      opts:[[n*k,''],[n,`${n} ist die Anzahl der goldenen Bündel. Gefragt sind die Schlüssel: In jedem Bündel hängen ${k}.`],
+            [d,`${d} ist die Anzahl der Bündel. Golden sind ${n} davon. Zähle die Schlüssel in diesen Bündeln.`],
+            [T-n*k,`${T-n*k} Schlüssel sind nicht golden. Gefragt sind die goldenen.`]]};
+  }},
+ label:{
+  q:t=>`Das Schild hat ${t.d} Felder, ${t.n===1?'eins ist':t.n+' sind'} gefärbt. Baue den Bruch und gib beiden Zahlen ihren Namen.`,
+  tip:()=>'Der Nenner steht unten und nennt, in wie viele Teile das Ganze geteilt ist. Der Zähler steht oben und zählt die gefärbten Teile.',
+  render(t){
+    const tiles=shuffle([t.n,t.d,t.d-t.n]).map(x=>`<button class="drag tile" data-val="${x}">${x}</button>`).join('')
+      +shuffle(['Zähler','Nenner']).map(x=>`<button class="drag tile word" data-val="${x}">${x}</button>`).join('');
+    return `<div class="row"><div class="figbox">${fig(t,new Set(t.f))}</div>
+    <div class="lab"><div class="labrow"><div class="slot sm" data-slot="top"></div><div class="slot wd" data-slot="ntop"></div></div>
+    <div class="bar"></div><div class="labrow"><div class="slot sm" data-slot="bot"></div><div class="slot wd" data-slot="nbot"></div></div></div></div>
+    <div class="tray" data-slot="tray">${tiles}</div>
+    <button class="btn" data-act="check" disabled>Prüfen</button>`;
+  },
+  drop(t,el,slot){put(el,slot)},
+  check(t){
+    checkAll((el,slot)=>{
+      const v=el.dataset.val,s=slot.dataset.slot;
+      if(String({top:t.n,bot:t.d,ntop:'Zähler',nbot:'Nenner'}[s])===v)return null;
+      const word=isNaN(v),ws=s[0]==='n';
+      return {top:'Obere Zahl: ',bot:'Untere Zahl: ',ntop:'Oberes Wort: ',nbot:'Unteres Wort: '}[s]
+        +(word&&!ws?'Hier gehört eine Zahl hin. Die Wörter kommen in die Felder daneben.'
+        :!word&&ws?'Hier gehört ein Wort hin: Zähler oder Nenner.'
+        :ws?'Der Nenner steht unten und nennt, in wie viele Teile das Ganze geteilt ist. Der Zähler steht oben und zählt, wie viele davon gemeint sind.'
+        :s==='top'?(v==t.d?`${t.d} ist die Anzahl aller Felder. Oben steht, wie viele davon gefärbt sind.`:`${v} Felder sind nicht gefärbt. Oben zählst du die gefärbten.`)
+        :(v==t.n?`Die ${t.n} zählt die gefärbten Felder, das ist der Zähler. Unten steht, in wie viele Felder das Ganze geteilt ist.`:'Der Nenner zählt alle Felder, auch die gefärbten.'));
+    });
+  },
+  quick(t){
+    const z=Math.random()<.5,n=t.n,d=t.d;        // z = nach dem Zähler gefragt
+    return {q:`Ein Schild hat ${d} Felder, ${n===1?'eins ist':n+' sind'} gefärbt. Welche Zahl ist der ${z?'Zähler':'Nenner'} des Bruchs?`,
+      opts:[[n,z?'':`Die ${n} zählt die gefärbten Felder, das ist der Zähler. Der Nenner steht unten und nennt, in wie viele Felder das Ganze geteilt ist.`],
+            [d,z?`${d} ist die Anzahl aller Felder, das ist der Nenner. Der Zähler steht oben und zählt die gefärbten Felder.`:''],
+            [d-n,`${d-n} ${d-n===1?'Feld ist':'Felder sind'} nicht gefärbt. Diese Zahl kommt im Bruch nicht vor.`]]};
+  }},
+ build:{
+  q:t=>`Repariere das Fensterbild: Genau ${fr(t.n,t.d)} sollen farbig sein. Ziehe Folienstücke hinein oder tippe auf die Felder.`,
+  tip:()=>'Schau auf den Zähler: So viele Folienstücke brauchst du. Sie müssen nicht nebeneinander liegen.',
+  render(t){
+    return `<div class="row"><div class="figbox">${fig(t,new Set(),true)}</div>
+    <div class="side"><div class="goal">${fr(t.n,t.d)}</div><button class="drag pile" data-val="g" aria-label="Folienstück">${piece(t)}</button></div></div>
+    <button class="btn" data-act="check">Fensterbild prüfen</button>`;
+  },
+  drop(t,el,slot,tap){slot.classList[tap?'toggle':'add']('on')},
+  tap(t,slot){slot.classList.toggle('on')},
+  check(t){
+    const k=document.querySelectorAll('#stage .fig .cell.on').length;
+    if(k===t.n){$('#stage [data-act]').hidden=true;return solved()}
+    wrong(k===t.d-t.n?`Jetzt sind ${k} Teile farbig und ${t.n} leer. Der Zähler sagt, wie viele farbig sein sollen.`
+      :k===0?'Das Fensterbild ist noch leer. Tippe auf ein Feld, um es zu färben.'
+      :`Im Fensterbild sind ${k} von ${t.d} Teilen farbig. Vergleiche diese Zahl mit dem Zähler.`,$('#stage .fig'));
+  },
+  quick(t){
+    if(t.d>10)return null;
+    const n=t.n,d=t.d,f=(a,b)=>fig({shape:'circle',d:b,c:t.c},new Set(range(a)));
+    return {q:`Welches Fensterbild zeigt ${fr(n,d)}?`,pic:1,
+      opts:[[f(n,d),''],[f(d-n,d),`Hier sind ${d-n} von ${d} Teilen farbig. Der Zähler sagt, wie viele farbig sein sollen.`],
+            [f(n,d+2),`Hier sind zwar ${n} Teile farbig, aber das Fensterbild hat ${d+2} Teile. Der Nenner sagt, in wie viele Teile es geteilt sein muss.`]]};
+  }},
+ /* --- Level 2 --- */
+ match:{
+  q:t=>'Ziehe jede Magnetkarte zu dem Tablet, das denselben Anteil zeigt.'+(t.extra?' Achtung: Eine Karte passt zu keinem Tablet.':''),
+  tip:()=>'Schau nur auf die gefärbte Fläche: Ist sie in beiden Bildern gleich groß? Die Anzahl der Teile darf verschieden sein.',
+  val:x=>Array.isArray(x)?{n:x[0],d:x[1]}:x,
+  show:x=>Array.isArray(x)?fr(...x):fig(x,new Set(range(x.n))),
+  render(t){
+    t.items=[...t.pairs.map(p=>p[1]),...(t.extra||[])];
+    return `<div class="row">${t.pairs.map((p,i)=>`<div class="mirror" data-slot="${i}">${this.show(p[0])}</div>`).join('')}</div>
+    <div class="tray" data-slot="tray">${shuffle(range(t.items.length)).map(i=>`<button class="drag ${Array.isArray(t.items[i])?'tile':'card'}" data-val="${i}">${this.show(t.items[i])}</button>`).join('')}</div>
+    <button class="btn" data-act="check" disabled>Prüfen</button>`;
+  },
+  drop(t,el,slot){put(el,slot)},
+  check(t){
+    checkAll((el,slot)=>{
+      const i=+slot.dataset.slot,a=this.val(t.items[el.dataset.val]),b=this.val(t.pairs[i][0]);
+      if(a.n*b.d===b.n*a.d)return null;
+      return ['Erstes','Zweites','Drittes'][i]+' Tablet: '+(a.n-b.n===a.d-b.d&&a.n!==b.n?'Hier wurde zu Zähler und Nenner dieselbe Zahl addiert. Dabei ändert sich der Anteil.'
+        :`Deine Karte zeigt einen ${a.n*b.d>b.n*a.d?'größeren':'kleineren'} Anteil als dieses Tablet. Vergleiche, wie viel jeweils gefärbt ist.`);
+    },'Verschiedene Brüche, derselbe Anteil.');
+  },
+  quick(t){       // ein Tablet, dazu alle Karten der Variante als Antworten; liefert eine Kurzaufgabe pro Paar
+    const items=[...t.pairs.map(p=>p[1]),...(t.extra||[])],pic=!Array.isArray(items[0]);
+    return t.pairs.map((p,i)=>{
+      const b=this.val(p[0]);
+      return {q:pic?'Welches Bild zeigt denselben Anteil?':'Welcher Bruch nennt denselben Anteil?',pic,
+        fig:Array.isArray(p[0])?`<span class="goal">${fr(...p[0])}</span>`:this.show(p[0]),
+        opts:items.map((x,j)=>{
+          const a=this.val(x);
+          if(j===i)return [this.show(x),''];
+          if(a.n*b.d===b.n*a.d)return null;
+          return [this.show(x),a.n-b.n===a.d-b.d&&a.n!==b.n?'Hier wurde zu Zähler und Nenner dieselbe Zahl addiert. Dabei ändert sich der Anteil.'
+            :`${pic?'Dieses Bild zeigt':'Dieser Bruch nennt'} einen ${a.n*b.d>b.n*a.d?'größeren':'kleineren'} Anteil. Vergleiche, wie viel jeweils gefärbt ist.`];
+        }).filter(Boolean)};
+    });
+  }},
+ scale:{
+  q:t=>t.full?`Kürze ${fr(t.n,t.d)} vollständig, also so weit, bis es nicht mehr weiter geht.`
+     :t.fig?`Der Kopierer zerschneidet jedes Teil in ${t.k} gleich große Stücke. Tippe auf den Kopierer und baue den neuen Bruch.`
+     :t.op===':'?`Kürze ${fr(t.n,t.d)} mit ${t.k}.`:`Erweitere ${fr(t.n,t.d)} mit ${t.k}.`,
+  tip:t=>t.full?'Suche eine Zahl, durch die Zähler und Nenner beide teilbar sind. Prüfe danach, ob es noch einmal geht.'
+     :t.fig?'Zähle nach dem Zerschneiden neu: Wie viele Stücke sind gefärbt, und wie viele sind es insgesamt?'
+     :t.op===':'?'Kürzen heißt: Zähler und Nenner durch dieselbe Zahl dividieren.':'Erweitern heißt: Zähler und Nenner mit derselben Zahl multiplizieren.',
+  /* rn/rd = richtiges Ergebnis, an/ad = Ergebnis der Fehlvorstellung "addieren bzw. abziehen" */
+  res(t){const m=t.op===':';return {m,rn:m?t.n/t.k:t.n*t.k,rd:m?t.d/t.k:t.d*t.k,an:m?t.n-t.k:t.n+t.k,ad:m?t.d-t.k:t.d+t.k}},
+  render(t){
+    const r=this.res(t),p=[2,3,5,7].find(p=>t.k%p===0&&t.k>p);
+    const nums=t.full&&p?[r.rn,r.rd,t.n/p,t.d/p]:[r.rn,r.rd,r.an,r.ad,t.n,t.d];   // full: Zwischenschritt als Ablenker
+    const eq=`<div class="row"><span class="goal">${fr(t.n,t.d)}</span><span class="op">=</span>
+      <div class="lab"><div class="slot sm" data-slot="top"></div><div class="bar"></div><div class="slot sm" data-slot="bot"></div></div></div>
+      <div class="tray" data-slot="tray">${shuffle([...new Set(nums)].filter(x=>x>0)).map(x=>`<button class="drag tile" data-val="${x}">${x}</button>`).join('')}</div>
+    <button class="btn" data-act="check" disabled>Prüfen</button>`;
+    return t.fig?`<div class="row"><button class="mirrorbtn" data-act="split">${gridFig(t.d,1,t.n,t.c)}<span>Kopierer antippen</span></button></div>
+      <div class="screen" id="after" hidden>${eq}</div>`:eq;
+  },
+  split(t,btn){btn.innerHTML=gridFig(t.d,t.k,t.n,t.c)+`<span>Jedes Teil ist jetzt in ${t.k} Stücke geteilt.</span>`;btn.disabled=true;$('#after').hidden=false},
+  drop(t,el,slot){put(el,slot)},
+  check(t){
+    const r=this.res(t);
+    checkAll((el,slot)=>{
+      const v=+el.dataset.val,up=slot.dataset.slot==='top',w=up?'Zähler':'Nenner';
+      if(v===(up?r.rn:r.rd))return null;
+      return (up?'Oben: ':'Unten: ')+(v===(up?r.rd:r.rn)?(up?'Das ist der neue Nenner. Er gehört nach unten.':'Das ist der neue Zähler. Er gehört nach oben.')
+        :t.full?`Als Zwischenschritt stimmt das, aber dieser Bruch lässt sich noch weiter kürzen. Suche die größte Zahl, durch die ${t.n} und ${t.d} beide teilbar sind.`
+        :v===(up?r.an:r.ad)?(r.m?`Du hast ${t.k} abgezogen. Beim Kürzen wird dividiert: ${w} durch ${t.k}.`:`Du hast ${t.k} addiert. Beim Erweitern wird multipliziert: ${w} mal ${t.k}.`)
+        :v===(up?t.n:t.d)?`Der ${w} kann nicht gleich bleiben. Zähler und Nenner ändern sich immer gemeinsam.`
+        :(r.m?`Rechne: ${w} durch ${t.k}.`:`Rechne: ${w} mal ${t.k}.`));
+    },`${fr(t.n,t.d)} = ${fr(r.rn,r.rd)}. `+(t.full?`Gekürzt mit ${t.k}, weiter geht es nicht.`
+      :r.m?`Zähler und Nenner durch ${t.k}: Das heißt kürzen. Der Anteil bleibt gleich.`:`Zähler und Nenner mal ${t.k}: Das heißt erweitern. Der Anteil bleibt gleich.`));
+  },
+  quick(t){       // fertigen Bruch antippen; Ablenker: addiert/abgezogen, nur eine Zahl geändert, (full) Zwischenschritt
+    const r=this.res(t),p=[2,3,5,7].find(p=>t.k%p===0&&t.k>p);
+    const o=[[r.rn,r.rd,''],
+      t.full?p&&[t.n/p,t.d/p,`Als Zwischenschritt stimmt das, aber dieser Bruch lässt sich noch weiter kürzen. Suche die größte Zahl, durch die ${t.n} und ${t.d} beide teilbar sind.`]
+        :[r.an,r.ad,r.m?`Hier wurde ${t.k} abgezogen. Beim Kürzen wird dividiert: Zähler und Nenner durch ${t.k}.`:`Hier wurde ${t.k} addiert. Beim Erweitern wird multipliziert: Zähler und Nenner mal ${t.k}.`],
+      [r.rn,t.d,'Der Nenner kann nicht gleich bleiben. Zähler und Nenner ändern sich immer gemeinsam.'],
+      !t.full&&[t.n,r.rd,'Der Zähler kann nicht gleich bleiben. Zähler und Nenner ändern sich immer gemeinsam.']];
+    return {q:t.full?`Kürze ${fr(t.n,t.d)} vollständig.`:r.m?`Kürze ${fr(t.n,t.d)} mit ${t.k}.`:`Erweitere ${fr(t.n,t.d)} mit ${t.k}.`,
+      opts:o.filter(x=>x&&x[0]>0&&x[1]>0).map(x=>[fr(x[0],x[1]),x[2]])};
+  }},
+ gap:{
+  q:()=>'Welche Zahl fehlt auf dem Monitor? Ziehe sie an die leere Stelle.',
+  /* src -> dst = das bekannte Zahlenpaar, same = die Zahl, aus der die gesuchte entsteht, ok = Lösung */
+  res(t){
+    const m=t.op===':',c=m?t.n/t.k:t.n*t.k,e=m?t.d/t.k:t.d*t.k,up=t.miss==='top';
+    return {m,c,e,up,ok:up?c:e,same:up?t.n:t.d,src:up?t.d:t.n,dst:up?e:c,w:up?'Zähler':'Nenner'};
+  },
+  tip(t){const r=this.res(t);return `Vergleiche die beiden Zahlen, die du kennst: Wie kommt man von ${r.src} zu ${r.dst}? Mach mit dem ${r.w} dasselbe.`},
+  render(t){
+    const r=this.res(t),cell=(up,v)=>r.up===up?'<div class="slot sm" data-slot="x"></div>':`<div class="given">${v}</div>`;
+    const nums=[r.ok,r.same+r.dst-r.src,r.same,t.k,r.ok+1];        // Lösung, addiert/abgezogen, unverändert, Faktor, knapp daneben
+    return `<div class="row"><span class="goal">${fr(t.n,t.d)}</span><span class="op">=</span>
+      <div class="lab">${cell(true,r.c)}<div class="bar"></div>${cell(false,r.e)}</div></div>
+      <div class="tray" data-slot="tray">${shuffle([...new Set(nums)].filter(x=>x>0)).map(x=>`<button class="drag tile" data-val="${x}">${x}</button>`).join('')}</div>
+    <button class="btn" data-act="check" disabled>Prüfen</button>`;
+  },
+  drop(t,el,slot){put(el,slot)},
+  check(t){
+    const r=this.res(t),diff=Math.abs(r.dst-r.src);
+    checkAll(el=>{
+      const v=+el.dataset.val;
+      if(v===r.ok)return null;
+      return v===r.same+r.dst-r.src?(r.m?`Von ${r.src} zu ${r.dst} wurde nicht ${diff} abgezogen, sondern durch ${t.k} dividiert. Mach mit dem ${r.w} dasselbe.`
+                                    :`Von ${r.src} zu ${r.dst} wurde nicht ${diff} addiert, sondern mit ${t.k} multipliziert. Mach mit dem ${r.w} dasselbe.`)
+        :v===r.same?`Wenn sich nur eine Zahl ändert, ändert sich der Anteil. Der ${r.w} muss sich mit ändern.`
+        :v===t.k?(r.m?`${t.k} ist die Zahl, mit der gekürzt wurde. Rechne: ${r.same} durch ${t.k}.`:`${t.k} ist die Zahl, mit der erweitert wurde. Rechne: ${r.same} mal ${t.k}.`)
+        :`Wie kommt man von ${r.src} zu ${r.dst}? Mach mit dem ${r.w} genau dasselbe.`;
+    },`${fr(t.n,t.d)} = ${fr(r.c,r.e)}. `+(r.m?`Gekürzt mit ${t.k}.`:`Erweitert mit ${t.k}.`));
+  },
+  quick(t){       // fehlende Zahl antippen; Ablenker wie in render: addiert/abgezogen, unverändert, Faktor
+    const r=this.res(t),diff=Math.abs(r.dst-r.src),seen=new Set();
+    const o=[[r.ok,''],
+      [r.same+r.dst-r.src,r.m?`Von ${r.src} zu ${r.dst} wurde nicht ${diff} abgezogen, sondern durch ${t.k} dividiert. Mach mit dem ${r.w} dasselbe.`
+                              :`Von ${r.src} zu ${r.dst} wurde nicht ${diff} addiert, sondern mit ${t.k} multipliziert. Mach mit dem ${r.w} dasselbe.`],
+      [r.same,`Wenn sich nur eine Zahl ändert, ändert sich der Anteil. Der ${r.w} muss sich mit ändern.`],
+      [t.k,r.m?`${t.k} ist die Zahl, mit der gekürzt wurde. Rechne: ${r.same} durch ${t.k}.`:`${t.k} ist die Zahl, mit der erweitert wurde. Rechne: ${r.same} mal ${t.k}.`]];
+    return {q:'Welche Zahl fehlt? Tippe sie an.',
+      fig:`<span class="goal">${fr(t.n,t.d)}</span><span class="op">=</span><span class="goal">${r.up?fr('?',r.e):fr(r.c,'?')}</span>`,
+      opts:o.filter(x=>x[0]>0&&!seen.has(x[0])&&seen.add(x[0]))};
+  }},
+ sortfr:{
+  q:t=>`Welche Brüche sind genauso groß wie ${fr(...t.ref)}? Sortiere sie in die beiden Kisten.`,
+  tip:t=>`Versuche, jeden Bruch durch Kürzen in ${fr(...t.ref)} zu verwandeln. Zähler und Nenner müssen dabei durch dieselbe Zahl teilbar sein.`,
+  render(t){
+    return `<div class="bins"><div class="bin" data-slot="yes"><h3>Genauso groß wie ${fr(...t.ref)}</h3></div><div class="bin" data-slot="no"><h3>Nicht genauso groß</h3></div></div>
+    <div class="tray" data-slot="tray">${shuffle(range(t.cards.length)).map(i=>`<button class="drag tile" data-val="${i}">${fr(...t.cards[i])}</button>`).join('')}</div>
+    <button class="btn" data-act="check" disabled>Prüfen</button>`;
+  },
+  drop(t,el,slot){put(el,slot)},
+  check(t){
+    const [n,d]=t.ref;
+    checkAll((el,slot)=>{
+      const [a,b]=t.cards[el.dataset.val],yes=a*d===b*n,g=gcd(a,b);
+      if((slot.dataset.slot==='yes')===yes)return null;
+      return yes?`Größere Zahlen, gleicher Anteil: Kürze ${fr(a,b)} mit ${a/n} und du erhältst ${fr(n,d)}.`
+        :a-n===b-d?`Bei ${fr(a,b)} wurde zu Zähler und Nenner ${a-n} addiert. Beim Erweitern wird multipliziert, sonst ändert sich der Anteil.`
+        :a===n||b===d?`Bei ${fr(a,b)} wurde nur eine der beiden Zahlen verändert. Beim Erweitern und Kürzen ändern sich Zähler und Nenner gemeinsam.`
+        :g>1?`Kürze ${fr(a,b)} vollständig: Du erhältst ${fr(a/g,b/g)}, nicht ${fr(n,d)}.`
+        :`${fr(a,b)} lässt sich nicht kürzen und ist nicht ${fr(n,d)}.`;
+    });
+  },
+  quick(t){       // eine Karteikarte, Antwort Ja oder Nein; liefert eine Kurzaufgabe pro Karte der Variante
+    const [n,d]=t.ref;
+    return t.cards.map(([a,b])=>{
+      const yes=a*d===b*n,g=gcd(a,b);
+      return {q:`Ist ${fr(a,b)} genauso groß wie ${fr(n,d)}?`,keep:1,
+        opts:[['Ja',yes?'':a-n===b-d?`Bei ${fr(a,b)} wurde zu Zähler und Nenner ${a-n} addiert. Beim Erweitern wird multipliziert, sonst ändert sich der Anteil.`
+                :a===n||b===d?`Bei ${fr(a,b)} wurde nur eine der beiden Zahlen verändert. Beim Erweitern und Kürzen ändern sich Zähler und Nenner gemeinsam.`
+                :g>1?`Kürze ${fr(a,b)} vollständig: Du erhältst ${fr(a/g,b/g)}, nicht ${fr(n,d)}.`
+                :`${fr(a,b)} lässt sich nicht kürzen und ist nicht ${fr(n,d)}.`],
+              ['Nein',yes?`Größere Zahlen, gleicher Anteil: Kürze ${fr(a,b)} mit ${a/n} und du erhältst ${fr(n,d)}.`:'']]};
+    });
+  }},
+ /* --- Level 1 (Fortsetzung) --- */
+ sort:{
+  /* frac = gesuchter Anteil [n,d], Standard ein Viertel. Fliesen liegen im 4x4-Raster, also 16 Kästchen. */
+  fr:t=>t.frac||[1,4],
+  name(t){const [n,d]=this.fr(t);return {'1/4':'ein Viertel','1/2':'die Hälfte','3/4':'drei Viertel'}[n+'/'+d]},
+  q(t){return `Bei welchen Fliesen ${this.fr(t)[0]>1?'sind':'ist'} genau ${this.name(t)} gefärbt? Sortiere sie in die beiden Kisten.`},
+  tip(t){const [n,d]=this.fr(t);return `Die feinen Linien teilen jede Fliese in 16 gleich große Kästchen. Zähle, wie viele davon gefärbt sind. `
+    +(n===1?`${fr(1,d)} von 16 sind ${16/d}.`:`${fr(1,d)} von 16 sind ${16/d}, also sind ${fr(n,d)} von 16 genau ${16*n/d}.`)},
+  render(t){
+    const [n,d]=this.fr(t);
+    return `<div class="bins"><div class="bin" data-slot="yes"><h3>Genau ${fr(n,d)} gefärbt</h3></div><div class="bin" data-slot="no"><h3>Nicht ${fr(n,d)}</h3></div></div>
+    <div class="tray" data-slot="tray">${shuffle(range(t.cards.length)).map(i=>`<button class="drag card" data-val="${i}">${coat(t.cards[i])}</button>`).join('')}</div>
+    <button class="btn" data-act="check" disabled>Prüfen</button>`;
+  },
+  drop(t,el,slot){put(el,slot)},
+  check(t){
+    const [n,d]=this.fr(t),A=16*n/d;
+    checkAll((el,slot)=>{
+      const c=t.cards[el.dataset.val],area=c.reduce((s,p)=>s+(p.on?p.w*p.h:0),0),yes=area===A,on=c.filter(p=>p.on).length;
+      if((slot.dataset.slot==='yes')===yes)return null;
+      const which=`Die Fliese mit ${on===1?'einem gefärbten Teil':on+' gefärbten Teilen'} von ${c.length}: `;
+      return which+(yes?`Zähle die Kästchen: ${A} von 16 sind gefärbt. `+(n===1?`${d===2?'Zweimal':'Viermal'} so viel ergibt die ganze Fliese, also ist es ${this.name(t)}.`:`${fr(1,d)} der Fliese sind ${16/d} Kästchen, ${fr(n,d)} sind ${A}.`)
+        :`Zähle die Kästchen: ${area} von 16 sind gefärbt. Für ${fr(n,d)} müssten es ${A} sein.`+(new Set(c.map(p=>p.w*p.h)).size>1?' Die Teile sind nicht gleich groß, deshalb reicht es nicht, Teile zu zählen.':''));
+    });
+  },
+  quick(t){       // eine Fliese, Antwort Ja oder Nein; liefert eine Kurzaufgabe pro Fliese der Variante
+    const [n,d]=this.fr(t),A=16*n/d;
+    return t.cards.map(c=>{
+      const area=c.reduce((s,p)=>s+(p.on?p.w*p.h:0),0),yes=area===A,uneq=new Set(c.map(p=>p.w*p.h)).size>1;
+      return {q:`${n>1?'Sind':'Ist'} genau ${this.name(t)} dieser Fliese gefärbt?`,fig:coat(c),keep:1,
+        opts:[['Ja',yes?'':`Zähle die Kästchen: ${area} von 16 sind gefärbt. Für ${fr(n,d)} müssten es ${A} sein.`+(uneq?' Die Teile sind nicht gleich groß, deshalb reicht es nicht, Teile zu zählen.':'')],
+              ['Nein',yes?`Zähle die Kästchen: ${A} von 16 sind gefärbt. Das ist genau ${this.name(t)}.`:'']]};
+    });
+  }}
+};
+
+/* ============ SPIELLOGIK ============ */
+let G=null,sel=null,drag=null,teacher=false;
+let Bz=null,noTimer=false;                                   // laufender Endgegner; Lehrermodus: Zeit abgeschaltet
+const W={x:60,tx:null,dir:1,ph:0,ts:0,raf:0,spots:[],keys:{l:false,r:false}};   // Zustand der Bewegung in der Szene
+const SPEED=270,EXIT=736;                                    // Gehtempo (Einheiten pro Sekunde), Stelle der Tür
+const PRAISE=['Richtig!','Genau so.','Stimmt!','Klick. Das passt.'];
+function show(id){document.querySelectorAll('.wrap>.screen').forEach(s=>s.hidden=s.id!==id);scrollTo(0,0)}
+function place(el,slot){el.classList.remove('drag','sel','lift');slot.append(el);sel=null}
+/* Zuordnen mit späterer Prüfung: put legt ein Teil ab, es bleibt beweglich. Ein besetztes Einzelziel
+   gibt sein altes Teil in den Vorrat zurück. ready schaltet "Prüfen" frei, sobald alles zugeordnet ist.
+   checkAll(judge, extra): judge(el, ziel) liefert null (richtig) oder einen Hinweistext. Ein Fehlversuch pro Prüfung. */
+function put(el,slot){
+  if(!slot.matches('.tray,.bin')){const old=slot.querySelector(':scope>.drag');if(old&&old!==el)$('#stage .tray').append(old)}
+  slot.append(el);el.classList.remove('sel','lift');sel=null;
+  document.querySelectorAll('#stage .mark').forEach(x=>x.classList.remove('mark'));ready();
+}
+function ready(){
+  const hs=[...document.querySelectorAll('#stage .slot,#stage .lock,#stage .mirror')];
+  hs.forEach(h=>h.classList.toggle('has',!!h.querySelector(':scope>.drag')));
+  const b=$('#stage [data-act=check]');
+  if(b)b.disabled=!hs.every(h=>h.classList.contains('has'))||!!($('#stage .bins')&&$('#stage .tray .drag'));
+}
+function checkAll(judge,extra){
+  const placed=[...document.querySelectorAll('#stage [data-slot]:not(.tray)>.drag')],bad=placed.map(el=>[el,judge(el,el.parentElement)]).filter(x=>x[1]);
+  const b=$('#stage [data-act=check]');
+  if(!bad.length){placed.forEach(el=>{el.classList.remove('drag');el.parentElement.classList.add('full','open')});b.hidden=true;return solved(extra)}
+  bad.forEach(x=>x[0].classList.add('mark'));b.disabled=true;      // erst nach einer Änderung wieder prüfbar
+  wrong((bad.length>1?'Rot markiert ist, was noch nicht stimmt. Hinweis zu einem davon: ':'')+bad[0][1],bad[0][0]);
+}
+function say(kind,label,html,m=$('#msg')){m.className='msg '+kind;m.innerHTML=`<b>${label}</b>${html}`}
+
+function renderMap(note){
+  const s=store.get();
+  $('#rose').innerHTML=`<svg viewBox="-36 -88 72 92" width="140" height="180" role="img" aria-label="Der Maskierte Magier">${WIZ}</svg>`;
+  $('#rooms').innerHTML=LEVELS.map((L,i)=>{
+    const zu=L.groups&&!frei(i);                                                   // über den Schalter FREIGABE gesperrt
+    const done=i<s.n,l=s.lv[i]||{e:0,t:0},open=(i<=s.n||teacher)&&L.groups&&!zu;   // Lehrermodus: alle gebauten und freigegebenen Level offen
+    const sub=[done?`${l.e>=31?'31 oder mehr':l.e} Fehlversuche · ${l.t} Tipps`:zu?'':i>s.n?(open?'im Lehrermodus offen':'noch verschlossen'):L.groups?'':'freigespielt, folgt bald',zu?freiAb(i):''].filter(Boolean).join(' · ');
+    return `<li><button class="room" data-lvl="${i}"${open?'':' disabled'}>
+    <span class="no">${i+1}</span><span class="t"><b>${L.place}</b><span>${L.topic}${sub?' · '+sub:''}</span></span>
+    ${done?stars(starsFor(l.e+l.t)):''}</button></li>`}).join('');
+  $('#codeMsg').innerHTML=(note?note+' ':'')+(s.n?`Aktueller Code: <span class="mono">${encode(s)}</span>${s.T?' (Lehrermodus)':''}`:'');
+  show('map');
+}
+function story(eye,title,text,btn,cb){
+  $('#stEye').textContent=eye;$('#stTitle').textContent=title;
+  $('#stText').innerHTML=paras(text);
+  $('#stBtn').textContent=btn;$('#stBtn').onclick=cb;show('story');
+}
+function startLevel(k,skip,keep){      // keep = Zähler eines Durchlaufs, der wegen 0 Leben neu beginnt
+  const L=LEVELS[k],tasks=[];
+  L.groups.forEach((g,gi)=>g.tasks.forEach((slot,ti)=>{
+    const {pool,...base}=slot,t={...base,...pool[Math.random()*pool.length|0],g:gi,last:ti===g.tasks.length-1};
+    if(t.n)t.f=t.scatter?shuffle(range(t.d)).slice(0,t.n):range(t.n);
+    tasks.push(t);
+  }));
+  Bz=null;
+  G={k,L,tasks,i:0,p:0,errs:keep?keep.errs:0,tips:keep?keep.tips:0,T:teacher||!!(keep&&keep.T),lives:LIVES,tipsLeft:TIPS,done:true,mode:'walk',tries:keep&&keep.tries||0};
+  if(skip)return;
+  const go=()=>{show('play');enterPlace(0)};
+  keep?go():story(`Level ${k+1} · ${L.topic}`,L.place,L.intro,L.startBtn,go);
+}
+const placeDone=p=>G.tasks.every((t,j)=>t.g!==p||j<G.i);
+function hud(){
+  if(!G||G.fin)return;
+  const n=G.tasks.length,walk=G.mode!=='task';
+  $('#locks').innerHTML=G.L.groups.map((g,i)=>`<span class="${placeDone(i)?'open':i===G.p?'now':''}"></span>`).join('');
+  $('#lives').innerHTML=hearts(G.lives);
+  $('#count').textContent=walk?`${G.i} von ${n} Aufgaben gelöst`:`Aufgabe ${G.i+1} von ${n}`;
+  $('#tipBtn').textContent=`Tipp (${G.tipsLeft} übrig)`;$('#tipBtn').hidden=walk;
+  $('#skip').hidden=!teacher||walk;
+  if(Bz)bossHud();
+}
+
+/* ---- Bewegung: Ort betreten, Szene zeichnen, gehen, ankommen ---- */
+function enterPlace(p){
+  const g=G.L.groups[p],name=g.name||G.L.place;
+  const mine=range(G.tasks.length).filter(i=>G.tasks[i].g===p);
+  G.p=p;G.mode='walk';G.done=true;
+  W.spots=mine.map((i,j)=>({i,x:Math.round(210+(j+.5)*420/mine.length)}));
+  const prev=W.spots.filter(s=>s.i<G.i).pop();
+  W.x=prev?prev.x:60;W.tx=null;W.dir=1;W.ph=0;
+  $('#placeName').textContent=`Ort ${p+1} von ${G.L.groups.length} · ${name}`;
+  $('#sceneBox').innerHTML=`<svg viewBox="0 0 800 300" role="img" aria-label="${name}">${(BG[g.bg]||BG.flur)()}<g id="door"></g><g id="spots"></g><g id="kid">${KID}</g></svg>`;
+  $('#scene').textContent=g.story;$('#voice').textContent=g.voice||'';
+  $('#q').innerHTML='';$('#stage').innerHTML='';$('#msg').className='msg';$('#msg').innerHTML='';
+  layout();
+}
+/* limit = die Stelle, bis zu der die Figur gehen darf: nächste offene Markierung oder (Ort fertig) die Tür */
+function limit(){const s=W.spots.find(s=>s.i>=G.i);return s?s.x:EXIT}
+function layout(){        // schaltet zwischen Gehen (Szene sichtbar) und Aufgabe (Szene verborgen) um
+  const walk=G.mode==='walk';
+  $('#sceneWrap').hidden=!walk;
+  walk?$('#sceneWrap').after($('#msg')):$('#stage').after($('#msg'));
+  hud();scrollTo(0,0);
+  if(walk){drawScene();W.ts=0;if(!W.raf)W.raf=requestAnimationFrame(tick)}
+}
+function drawKid(el,x,dir,ph){
+  el.setAttribute('transform',`translate(${x.toFixed(1)},264) scale(${dir*1.25},1.25)`);
+  const a=Math.sin(ph)*26;
+  el.querySelector('.la').setAttribute('transform',`rotate(${a.toFixed(1)} -3 -26)`);
+  el.querySelector('.lb').setAttribute('transform',`rotate(${(-a).toFixed(1)} 4 -26)`);
+}
+function drawScene(){
+  const open=limit()===EXIT;
+  $('#spots').innerHTML=W.spots.map(s=>spot(s.x,s.i<G.i?'done':s.i===G.i?'act':'wait')).join('');
+  $('#door').innerHTML=door(open);
+  $('#walkHint').textContent=open?'Die Tür ist offen. Geh hindurch: Tippe auf die Tür oder halte die Pfeiltaste → gedrückt.'
+    :'Geh zur leuchtenden Markierung: Tippe auf die Stelle oder halte die Pfeiltaste → gedrückt.';
+  drawKid($('#kid'),W.x,W.dir,0);
+}
+function tick(ts){
+  W.raf=0;
+  if(!G||G.mode!=='walk'||$('#play').hidden)return;
+  const dt=W.ts?Math.min(.05,(ts-W.ts)/1000):0,lim=limit();W.ts=ts;
+  let v=0;
+  if(W.keys.l!==W.keys.r){v=W.keys.r?1:-1;W.tx=null}
+  else if(W.tx!=null){const d=Math.min(W.tx,lim)-W.x;if(Math.abs(d)<2){if(W.tx>=lim)W.x=lim;W.tx=null}else v=Math.sign(d)}
+  if(v){W.dir=v;W.x=Math.max(40,Math.min(lim,W.x+v*SPEED*dt));W.ph+=dt*11}else W.ph=0;
+  drawKid($('#kid'),W.x,W.dir,W.ph);
+  if(W.x>=lim-.5){W.tx=null;return arrive()}
+  W.raf=requestAnimationFrame(tick);
+}
+function arrive(){
+  if(W.spots.some(s=>s.i>=G.i)){G.mode='task';return renderTask()}      // Markierung erreicht: Aufgabe öffnen
+  if(G.p<G.L.groups.length-1)return enterPlace(G.p+1);                    // Tür erreicht: nächster Ort
+  G.L.boss&&BOSSES[G.L.boss]?bossIntro():finish();
+}
+function renderTask(){
+  const t=G.tasks[G.i],T=TYPES[t.type];
+  G.done=G.tipped=false;sel=null;
+  $('#q').innerHTML=t.q||T.q(t);
+  $('#stage').innerHTML=T.render(t);
+  $('#msg').className='msg';$('#msg').innerHTML='';
+  layout();
+}
+function wrong(html,el){      // Fehlversuch: zählt für die Sterne und kostet ein Leben
+  G.errs++;G.lives--;
+  if(G.lives<=0)return outOfLives(html);
+  say('bad','Noch nicht · ein Leben weniger',html);hud();
+  if(el){el.classList.remove('shake');void el.getBoundingClientRect();el.classList.add('shake')}
+}
+function outOfLives(html){
+  const k=G.k,keep={errs:G.errs,tips:G.tips,T:G.T,tries:G.tries};G.mode='out';
+  story(`Level ${k+1} · ${G.L.place}`,'Keine Leben mehr',[`Der Hinweis zu deinem letzten Versuch: ${html}`,
+    `Deine ${LIVES} Leben sind aufgebraucht. Das Level beginnt von vorn, und du bekommst wieder ${LIVES} Leben und ${TIPS} Tipps.`],'Level neu beginnen',()=>startLevel(k,false,keep));
+}
+function solved(extra,label){      // extra = optionale Erklärung zur Lösung (HTML). Danach geht es zu Fuß weiter.
+  const t=G.tasks[G.i];G.done=true;
+  say('good',label||PRAISE[G.i%PRAISE.length],[extra,t.last?G.L.groups[t.g].done:''].filter(Boolean).join(' '));
+  document.activeElement?.blur?.();      // sonst blieben die Pfeiltasten im Zahlenfeld hängen
+  G.i++;G.mode='walk';layout();
+}
+function finish(){
+  const s=store.get(),old=s.lv[G.k],cur={e:G.errs,t:G.tips};
+  if(G.k>=s.n||!old||cur.e+cur.t<old.e+old.t)s.lv[G.k]=cur;      // erster oder besserer Durchlauf zählt
+  for(let i=0;i<5;i++)s.lv[i]=s.lv[i]||{e:0,t:0};
+  s.n=Math.max(s.n,G.k+1);if(G.T||teacher)s.T=1;store.set(s);G.fin=true;Bz=null;
+  $('#endTitle').textContent=G.L.endTitle;
+  $('#endEye').textContent=`Level ${G.k+1} geschafft · ${G.L.place}`;
+  $('#endStars').innerHTML=stars(starsFor(G.errs+G.tips));
+  $('#endTips').textContent=G.tips;$('#endErrs').textContent=G.errs;
+  $('#endCodeLbl').textContent=s.T?'Spielstand-Code (Lehrermodus)':'Dein Spielstand-Code';
+  $('#endCode').textContent=encode(s);
+  $('#endText').innerHTML=paras(G.L.outro);
+  show('end');
+}
+
+/* ============ ENDGEGNER (Daten in BOSSES, Kurzaufgaben aus TYPES[typ].quick) ============ */
+function bossPool(L){      // alle Kurzaufgaben des Levels, nach Aufgabentyp sortiert
+  const out={};
+  L.groups.forEach(g=>g.tasks.forEach(slot=>{
+    const T=TYPES[slot.type],{pool,...base}=slot;
+    if(T.quick)pool.forEach(v=>{
+      const t={...base,...v};if(t.n)t.f=t.scatter?shuffle(range(t.d)).slice(0,t.n):range(t.n);
+      const q=T.quick(t);if(q)(out[slot.type]=out[slot.type]||[]).push(...[].concat(q));
+    });
+  }));
+  return out;
+}
+function bossIntro(){
+  const b=BOSSES[G.L.boss],n=G.tipsLeft;
+  G.mode='boss';G.shields=n;
+  story(`Level ${G.k+1} · Endgegner`,b.name,[...b.intro,`Du kommst mit ${G.lives} von ${LIVES} Leben an. `+(n?`Du hast noch ${n} ${n===1?'Tipp':'Tipps'} übrig. Daraus ${n===1?'wird ein Schutzschild':'werden '+n+' Schutzschilde'}: Sie fangen die ersten Treffer ab.`
+    :'Du hast keinen Tipp mehr übrig, also gibt es diesmal keine Schutzschilde.')],'Los geht’s',bossStart);
+}
+function bossStart(){
+  const b=BOSSES[G.L.boss];
+  Bz={b,pool:bossPool(G.L),bag:[],lives:G.lives,shields:G.shields,solved:0,state:'',t:0,limit:1,ts:0,raf:0,last:null,cur:[]};
+  $('#arena').innerHTML=`<svg viewBox="0 70 800 230" role="img" aria-label="${b.name} wirft Aufgabenzettel">${(BG[b.bg]||BG.flur)()}
+    <g transform="translate(540,250) scale(.85)">${WIZ}</g><g transform="translate(690,264) scale(1.5)">${b.fig('#b06cff')}</g>
+    <circle id="bshield" cx="100" cy="212" r="64" fill="#2a6fe822" stroke="#2a6fe8" stroke-width="4" stroke-dasharray="10 6"/><g id="bkid">${KID}</g>
+    <g id="proj"><rect x="-17" y="-21" width="34" height="42" rx="3" fill="#fff" stroke="#16302b" stroke-width="2.5"/><text x="0" y="8" text-anchor="middle" font-size="24" font-weight="700" fill="#6a3fb5">?</text></g></svg>`;
+  drawKid($('#bkid'),100,1,0);
+  show('boss');bossNext();
+}
+function bossHud(){
+  const z=Bz;
+  $('#blives').innerHTML=hearts(z.lives,z.shields);
+  $('#bcount').textContent=`${z.solved} von ${z.b.need} Zetteln abgewehrt`;
+  $('#btime').hidden=$('#bskip').hidden=!teacher;$('#btime').textContent=`Zeit: ${noTimer?'aus':'an'}`;
+  $('#bshield').setAttribute('opacity',z.shields?1:0);
+}
+function bossDraw(){
+  const z=Bz,p=Math.min(1,z.t/z.limit);
+  $('#proj').setAttribute('transform',`translate(${(600-470*p).toFixed(1)},${(200-70*Math.sin(Math.PI*p)).toFixed(1)}) rotate(${(p*540).toFixed(0)})`);
+  $('#proj').setAttribute('opacity',z.state==='fly'?1:0);
+  $('#tfill').style.width=p*100+'%';
+}
+function bossNext(){      // nächster Zettel: Typen reihum gemischt, Variante zufällig
+  const z=Bz,b=z.b,types=Object.keys(z.pool);
+  if(!z.bag.length)z.bag=shuffle(types);
+  const ty=z.bag.pop(),list=z.pool[ty];let q;
+  do q=list[Math.random()*list.length|0];while(q===z.last&&list.length>1);
+  z.last=q;z.cur=q.keep?q.opts:shuffle(q.opts);
+  z.limit=(b.secs[ty]||10)*b.speed[Math.min(z.solved,b.speed.length-1)]*(1+b.ease*Math.min(G.tries,b.easeMax));
+  z.t=0;z.ts=0;z.state='fly';
+  $('#bq').innerHTML=q.q;$('#bfig').innerHTML=q.fig||'';
+  $('#bopts').innerHTML=z.cur.map((o,i)=>`<button class="opt${q.pic?' pic':''}" data-o="${i}">${o[0]}</button>`).join('');
+  $('#bmsg').className='msg';$('#bmsg').innerHTML='';$('#bnext').hidden=true;
+  bossHud();bossDraw();if(!z.raf)z.raf=requestAnimationFrame(bossTick);
+}
+function bossTick(ts){
+  const z=Bz;if(!z)return;z.raf=0;
+  if(z.state!=='fly')return;
+  if($('#boss').hidden)z.ts=0;        // Abbrechen-Rückfrage offen: Zeit steht
+  else{
+    if(z.ts&&!noTimer)z.t+=Math.min(.1,(ts-z.ts)/1000);
+    z.ts=ts;bossDraw();
+    if(z.t>=z.limit)return bossMiss(-1);
+  }
+  z.raf=requestAnimationFrame(bossTick);
+}
+function bossHit(i){
+  const z=Bz;z.state='ok';z.solved++;
+  const left=z.b.need-z.solved,bs=document.querySelectorAll('#bopts .opt');
+  bs.forEach(b=>b.disabled=true);bs[i].classList.add('ok');
+  say('good','Abgewehrt!',left?`Noch ${left} ${left===1?'Zettel':'Zettel'}.`:'Das war der letzte Zettel!',$('#bmsg'));
+  bossHud();bossDraw();
+  setTimeout(()=>{if(Bz===z)left?bossNext():finish()},900);
+}
+function bossMiss(i){      // i = gewählte falsche Antwort, -1 = Zettel hat getroffen
+  const z=Bz;z.state='pause';
+  const sh=z.shields>0;sh?z.shields--:z.lives--;G.lives=z.lives;
+  const bs=document.querySelectorAll('#bopts .opt'),ok=z.cur.findIndex(o=>!o[1]);
+  bs.forEach(b=>b.disabled=true);bs[ok].classList.add('ok');if(i>=0)bs[i].classList.add('bad');
+  say('bad',(i<0?'Getroffen':'Falsch')+(sh?' · ein Schutzschild weniger':' · ein Leben weniger'),
+    (i<0?'Der Zettel war schneller als du. ':z.cur[i][1]+' ')+'Die richtige Antwort ist grün markiert.',$('#bmsg'));
+  const a=$('#arena');a.classList.remove('shake');void a.getBoundingClientRect();a.classList.add('shake');
+  bossHud();bossDraw();
+  const n=$('#bnext');n.hidden=false;n.focus({preventScroll:true});
+}
+function bossLost(){      // 0 Leben beim Endgegner: Das ganze Level beginnt von vorn
+  const z=Bz,b=z.b,k=G.k,keep={errs:G.errs,tips:G.tips,T:G.T,tries:G.tries+1};
+  story(`Level ${k+1} · Endgegner`,`${b.name} war schneller`,[...b.lose,`Du hast ${z.solved} von ${b.need} Zetteln abgewehrt, aber deine Leben sind aufgebraucht. Das Level beginnt von vorn, und du bekommst wieder ${LIVES} Leben und ${TIPS} Tipps.`
+    +(keep.tries<=b.easeMax?' '+b.slow:'')],'Level neu beginnen',()=>startLevel(k,false,keep));
+}
+$('#bopts').onclick=e=>{
+  const b=e.target.closest('.opt');if(!b||!Bz||Bz.state!=='fly')return;
+  const i=+b.dataset.o;Bz.cur[i][1]?bossMiss(i):bossHit(i);
+};
+$('#bnext').onclick=()=>{if(Bz&&Bz.state==='pause')Bz.lives>0?bossNext():bossLost()};
+$('#btime').onclick=()=>{if(teacher){noTimer=!noTimer;bossHud()}};
+$('#bskip').onclick=()=>{if(teacher&&Bz){G.T=true;finish()}};
+
+function drop(el,slot,tap){
+  if(!G||G.done)return;
+  if(sel){sel.classList.remove('sel');sel=null}
+  const t=G.tasks[G.i];TYPES[t.type].drop(t,el,slot,tap);
+}
+
+/* ---- Ziehen (Pointer-Events) und Antippen als Alternative ---- */
+const stage=$('#stage');
+stage.addEventListener('pointerdown',e=>{
+  const el=e.target.closest('.drag');if(!el||G.done)return;
+  e.preventDefault();
+  const r=el.getBoundingClientRect();
+  drag={el,x:e.clientX,y:e.clientY,dx:e.clientX-r.left,dy:e.clientY-r.top,w:r.width,h:r.height,ghost:null};
+});
+addEventListener('pointermove',e=>{
+  if(!drag)return;
+  if(!drag.ghost){
+    if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<8)return;
+    const g=drag.ghost=drag.el.cloneNode(true);g.classList.add('ghost');g.classList.remove('sel');
+    g.style.width=drag.w+'px';g.style.height=drag.h+'px';document.body.append(g);drag.el.classList.add('lift');
+  }
+  drag.ghost.style.left=e.clientX-drag.dx+'px';drag.ghost.style.top=e.clientY-drag.dy+'px';
+});
+function endDrag(e,cancel){
+  if(!drag)return;const d=drag;drag=null;d.el.classList.remove('lift');
+  if(d.ghost){
+    d.ghost.remove();if(cancel)return;
+    const slot=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-slot]');
+    if(slot&&stage.contains(slot))drop(d.el,slot,false);
+  }else if(!cancel){
+    const host=d.el.parentElement.closest('[data-slot]');      // gewähltes Teil auf ein belegtes Ziel tippen (oder zurück auf den Vorrat)
+    if(sel&&sel!==d.el&&host&&!(host.matches('.tray')&&sel.parentElement.matches('.tray')))return drop(sel,host,true);
+    if(sel)sel.classList.remove('sel');
+    sel=sel===d.el?null:d.el;if(sel)sel.classList.add('sel');
+  }
+}
+addEventListener('pointerup',e=>endDrag(e,false));
+addEventListener('pointercancel',e=>endDrag(e,true));
+stage.addEventListener('click',e=>{
+  if(!G||G.done)return;
+  const t=G.tasks[G.i],T=TYPES[t.type];
+  const act=e.target.closest('[data-act]');if(act)return T[act.dataset.act](t,act);   // Schaltflächen eines Aufgabentyps
+  if(e.target.closest('.drag'))return;
+  const slot=e.target.closest('[data-slot]');if(!slot)return;
+  if(sel)drop(sel,slot,true);else if(T.tap)T.tap(t,slot);
+  else say('tip','So geht es','Ziehe ein Teil hierher. Oder tippe erst das Teil an und dann das Ziel.');
+});
+
+$('#tipBtn').onclick=()=>{
+  if(!G||G.mode!=='task')return;
+  const t=G.tasks[G.i];
+  if(!G.tipped&&!G.done){
+    if(G.tipsLeft<=0)return say('tip','Keine Tipps mehr',`Du hast alle ${TIPS} Tipps für dieses Level verbraucht.`);
+    G.tipped=true;G.tips++;G.tipsLeft--;hud();
+  }
+  say('tip','Tipp',t.tip||TYPES[t.type].tip(t));
+};
+/* Zahlenfelder: nur Ziffern zulassen, Enter prüft */
+stage.addEventListener('input',e=>{if(e.target.matches('.num'))e.target.value=e.target.value.replace(/\D/g,'')});
+stage.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.num')){e.preventDefault();$('#stage [data-act]')?.click()}});
+/* Level abbrechen: Der Spielstand wird erst in finish() geschrieben, also genügt es, das laufende Level zu verwerfen */
+document.querySelectorAll('.quit').forEach(b=>b.onclick=()=>{$('#quitEye').textContent=`Level ${G.k+1} · ${G.L.place}`;show('quit')});
+$('#quitNo').onclick=()=>{if(Bz)show('boss');else{show('play');layout()}};
+$('#quitYes').onclick=()=>{G=null;Bz=null;sel=null;renderMap()};
+$('#skip').onclick=()=>{if(teacher&&G&&G.mode==='task'){G.T=true;solved('','Übersprungen')}};
+$('#rooms').onclick=e=>{const b=e.target.closest('[data-lvl]');if(b&&!b.disabled)startLevel(+b.dataset.lvl)};
+$('#toMap').onclick=()=>renderMap();
+$('#again').onclick=()=>startLevel(G.k);
+$('#codeForm').onsubmit=e=>{
+  e.preventDefault();
+  const s=decode($('#codeIn').value);
+  if(!s){$('#codeMsg').textContent='Dieser Code ist nicht gültig. Prüfe jedes Zeichen. O, 0, I und 1 kommen nie vor.';return}
+  store.set(s);$('#codeIn').value='';renderMap('Spielstand geladen.');
+};
+
+/* ---- Steuerung der Spielfigur: Antippen/Klicken in der Szene, Pfeiltasten oder A/D. Endgegner: Tasten 1-4. ---- */
+$('#sceneBox').addEventListener('pointerdown',e=>{
+  if(!G||G.mode!=='walk')return;
+  const r=$('#sceneBox svg').getBoundingClientRect();
+  W.tx=Math.max(40,Math.min(EXIT,(e.clientX-r.left)/r.width*800));
+});
+const walkKey=e=>({arrowright:'r',d:'r',arrowleft:'l',a:'l'})[(e.key||'').toLowerCase()];
+addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey||e.target.matches?.('input'))return;
+  if(Bz&&!$('#boss').hidden){
+    const b=/^[1-9]$/.test(e.key)&&document.querySelectorAll('#bopts .opt')[e.key-1];
+    if(b){e.preventDefault();b.click()}
+    return;
+  }
+  const k=walkKey(e);
+  if(k&&G&&G.mode==='walk'&&!$('#play').hidden){W.keys[k]=true;e.preventDefault()}
+});
+addEventListener('keyup',e=>{const k=walkKey(e);if(k)W.keys[k]=false});
+addEventListener('blur',()=>{W.keys.l=W.keys.r=false});
+
+/* ---- Lehrermodus: Strg+Umschalt+L oder fünfmal schnell auf den Titel tippen ---- */
+function toggleTeacher(){teacher=!teacher;if(!teacher)noTimer=false;$('#tbadge').hidden=!teacher;if(teacher&&G)G.T=true;hud();if(!$('#map').hidden)renderMap()}
+addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==='l'){e.preventDefault();toggleTeacher()}});
+let taps=[];
+$('#title').addEventListener('pointerdown',()=>{
+  const now=Date.now();taps=taps.filter(x=>now-x<2500);taps.push(now);
+  if(taps.length>=5){taps=[];toggleTeacher()}
+});
+
+/* ---- Start, mit Erhalt des Spielstands bei Aktualisierungen ---- */
+function boot(d){
+  d=d||window.claude?.hot?.data||{};
+  renderMap();
+  if(d.k!=null&&LEVELS[d.k]&&LEVELS[d.k].groups&&frei(d.k)){
+    startLevel(d.k,true);const n=G.tasks.length;
+    G.i=Math.min(d.i||0,n);G.errs=d.errs||0;G.tips=d.tips||0;G.T=!!d.T;G.lives=d.lives||LIVES;G.tipsLeft=d.tl??TIPS;
+    show('play');enterPlace(G.i<n?G.tasks[G.i].g:G.L.groups.length-1);
+  }
+}
+window.claude?.hot?.snapshot?.(()=>G&&!G.fin&&(!$('#play').hidden||!$('#boss').hidden)?{k:G.k,i:G.i,errs:G.errs,tips:G.tips,T:G.T,lives:G.lives,tl:G.tipsLeft}:{});
+window.claude?.hot?.ready?window.claude.hot.ready(boot):boot();
+</script>
